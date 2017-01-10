@@ -4,7 +4,7 @@
 class Encoder_Kalman
 {
   public:
-    Encoder enc;
+    Encoder *enc;
     //process variance
     float Q = 0.01;
     //measurement variance
@@ -16,13 +16,14 @@ class Encoder_Kalman
     float PMinus;    //a priori error estimate
     float K;         //gain of blending factor
     float z;         //measurement
+    
+    Encoder_Kalman(int,int);
+    
   
-     
-  /*
   void Update()
   {
    //Sensor Reading
-   z = enc.read();
+   z = enc->read();
    
    //time update
    xhatMinus = xhat;
@@ -34,18 +35,22 @@ class Encoder_Kalman
    P = (1 - K) * PMinus;
     
   }
-  */
+  
 };
 
 Encoder_Kalman::Encoder_Kalman(int A, int B)
 {
-  enc = enc(A, B);
+  enc = new Encoder(A, B);
   xhat = 0;
   P = 1;
 }
 
+Encoder_Kalman encoder(2, 3);
+
 void setup()
 {
+  
+  
   Serial.begin(9600);
   
   
@@ -53,7 +58,9 @@ void setup()
 
 void loop()
 {
+   encoder.Update();
    
+   Serial.println(encoder.xhat);
    delay(25);
 }
 
