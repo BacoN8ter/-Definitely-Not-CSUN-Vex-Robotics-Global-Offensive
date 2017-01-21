@@ -36,29 +36,189 @@ void pre_auton()
   liftPotentiometer.maxValue = 270;
 
   clawPotentiometer.minValue = 28;
-  clawPotentiometer.maxValue = 8;
+  clawPotentiometer.maxValue = 15;
 }
 
+//0 - red pole side | blue opposite
+//1 - red opposite  | blue pole (not ready)
+//2 - red pole side option (ready) cube first
+int auton = 0;
 
 task autonomous()
 {
+
+	clearAll(actOnSensors);
+	startTask(UpdateSensors);
+	if(auton == 0)
+	{
+	//drive to unlock claw
 	SetDrive(127);
 	wait1Msec(500);
 	startTask(StarLift);
 	SetDrive(-127);
 	wait1Msec(250);
 	SetDrive(0);
-	startTask(UpdateSensors);
 
+	//drive to fence
 	startTask(OpenClaw);
-	MoveForward(440);
-	stopTask(OpenClaw);
-	MoveBackward(-500);
-	TurnLeft(110);
-	startTask(LowLift);
-	MoveForward(150);
-	CloseClaw();
+	MoveForward(475);
 
+	//stopTask OpenClaw if still in existence
+	stopTask(StarLift);
+	stopTask(OpenClaw);
+
+
+	//Move back
+	MoveBackward(-500);
+	SetDrive(0);
+
+	//lower lift
+	startTask(LowLift);
+	wait1Msec(750);
+
+	//turn to cube
+	TurnLeft(150);
+	SetDrive(0);
+	wait1Msec(250);
+
+	//move forward and grab cube
+	MoveForward(210);
+	stopTask(LowLift);
+	CloseClaw();
+	wait1Msec(500);
+	startTask(HighLift);
+	MoveForward(100);
+	SetDrive(0);
+	wait1Msec(250);
+	TurnRight(160);
+
+	SetDrive(0);
+	wait1Msec(250);
+	//move forward and release the cube
+	MoveForward(467);
+	ReleasePayload();
+	stopTask(HighLift);
+
+	//Move back and turn while lowering lift
+	MoveBackward(-450);
+	SetDrive(0);
+	wait1Msec(500);
+	startTask(LowLift);
+	TurnLeft(240);
+	MoveForward(170);
+	stopTask(LowLift);
+	CloseClaw();
+	startTask(HighLift);
+	TurnRight(200);
+	MoveForward(480);
+	stopTask(HighLift);
+	startTask(OpenClaw);
+	}
+	else if (auton == 1) /////////////////////////////////////////////////////
+	{
+		//drive to unlock claw
+	SetDrive(127);
+	wait1Msec(500);
+	startTask(StarLift);
+	SetDrive(-127);
+	wait1Msec(250);
+	SetDrive(0);
+
+	//drive to fence
+	startTask(OpenClaw);
+	MoveForward(475);
+
+	//stopTask OpenClaw if still in existence
+	stopTask(StarLift);
+	stopTask(OpenClaw);
+
+
+	//Move back
+	MoveBackward(-500);
+	SetDrive(0);
+
+	//lower lift
+	startTask(LowLift);
+	wait1Msec(250);
+
+	//turn to cube
+	TurnRight(150);
+	SetDrive(0);
+	wait1Msec(250);
+
+	//move forward and grab cube
+	MoveForward(210);
+	stopTask(LowLift);
+	CloseClaw();
+	startTask(HighLift);
+	MoveForward(100);
+	SetDrive(0);
+	wait1Msec(250);
+	TurnLeft(160);
+
+	SetDrive(0);
+	wait1Msec(250);
+	//move forward and release the cube
+	MoveForward(467);
+	ReleasePayload();
+	stopTask(HighLift);
+
+	//Move back and turn while lowering lift
+	MoveBackward(-450);
+	SetDrive(0);
+	wait1Msec(500);
+	startTask(LowLift);
+	TurnRight(240);
+	MoveForward(170);
+	stopTask(LowLift);
+	CloseClaw();
+	startTask(HighLift);
+	TurnLeft(200);
+	MoveForward(480);
+	stopTask(HighLift);
+	startTask(OpenClaw);
+	}
+	else if(auton == 2) ////////////////////////////////
+	{
+		//drive to unlock claw
+		SetDrive(127);
+		wait1Msec(500);
+		startTask(OpenClaw);
+		SetDrive(-127);
+		wait1Msec(250);
+		TurnLeft(150);
+
+		//move forward and grab cube
+		MoveForward(210);
+		stopTask(OpenClaw);
+		CloseClaw();
+		startTask(HighLift);
+		MoveForward(100);
+		SetDrive(0);
+		wait1Msec(125);
+		TurnRight(210);
+
+		//move forward and release the cube
+		MoveForward(500);
+		ReleasePayload();
+		stopTask(HighLift);
+
+		//Move back and turn while lowering lift
+		MoveBackward(-420);
+		SetDrive(0);
+		wait1Msec(500);
+		startTask(LowLift);
+		TurnLeft(300);
+		MoveForward(180);
+		stopTask(LowLift);
+		CloseClaw();
+		startTask(HighLift);
+		TurnLeft(200);
+		MoveForward(480);
+		stopTask(HighLift);
+		startTask(OpenClaw);
+
+	}
 	wait1Msec(10000);
 }
 

@@ -7,7 +7,7 @@ ch3 <- left drive
 ch2 <- right drive
 Only assigns if above a DEADZONE
 */
-#define DEADZONE 15
+#define DEADZONE 30
 
 void Drive()
 {
@@ -52,11 +52,11 @@ void Lift()
 
 void Roller()
 {
-	if(vexRT[Btn5U]==1){
+	if(vexRT[Btn5U]== 1){
 	  motor[leftRoller] = 127;
 	  motor[rightRoller] = 127;
   }
-  else if(vexRT[Btn5D]==1){
+  else if(vexRT[Btn5D]== 1){
     motor[leftRoller] = -127;
     motor[rightRoller] = -127;
   }
