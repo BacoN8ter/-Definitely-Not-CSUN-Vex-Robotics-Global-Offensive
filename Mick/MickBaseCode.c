@@ -1,3 +1,7 @@
+#pragma config(Sensor, in1,    clawPot,        sensorPotentiometer)
+#pragma config(Sensor, in8,    liftPot,        sensorPotentiometer)
+#pragma config(Sensor, dgtl1,  leftDriveEncoder, sensorQuadEncoder)
+#pragma config(Sensor, dgtl11, rightDriveEncoder, sensorQuadEncoder)
 #pragma config(Motor,  port1,           leftRoller,    tmotorVex393_HBridge, openLoop)
 #pragma config(Motor,  port2,           leftDriveBack, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3,           leftDriveCenter, tmotorVex393_MC29, openLoop, reversed)
@@ -16,6 +20,10 @@
 
 #include "Vex_Competition_Includes.c"
 #include "MickDriverControl.h"
+#include "MickAutonControl.h"
+//#include "UART.h"
+
+
 
 void pre_auton()
 {
@@ -24,12 +32,34 @@ void pre_auton()
   // manage all user created tasks if set to false.
   bStopTasksBetweenModes = true;
 
+  liftPotentiometer.minValue = 245;
+  liftPotentiometer.maxValue = 270;
+
+  clawPotentiometer.minValue = 28;
+  clawPotentiometer.maxValue = 8;
 }
 
 
 task autonomous()
 {
+	SetDrive(127);
+	wait1Msec(500);
+	startTask(StarLift);
+	SetDrive(-127);
+	wait1Msec(250);
+	SetDrive(0);
+	startTask(UpdateSensors);
 
+	startTask(OpenClaw);
+	MoveForward(440);
+	stopTask(OpenClaw);
+	MoveBackward(-500);
+	TurnLeft(110);
+	startTask(LowLift);
+	MoveForward(150);
+	CloseClaw();
+
+	wait1Msec(10000);
 }
 
 

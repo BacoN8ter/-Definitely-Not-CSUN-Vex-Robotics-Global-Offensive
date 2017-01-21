@@ -21,7 +21,7 @@ Sebastian O.H. Madgwick - April 30, 2010
 #include "Quaternion.h"
 #include "Vector3.h"	
 #include "math.h"
-float samplesPerSecond = 200;
+float samplesPerSecond = 1000;
 MadgwickAHRS AHRS = MadgwickAHRS(1 / samplesPerSecond);
 
 /* Assign a unique ID to the sensors */
@@ -58,6 +58,8 @@ void setup() {
 
 sensors_event_t event;
 Vector3 accel3, gyro3, mag3;
+
+uint32_t index = 0;
 
 void loop() {
 
@@ -98,12 +100,16 @@ void loop() {
 	//	 Serial.print(AHRS.qDot.Values[i]); Serial.print("  ");
 	//}
 	//Serial.println();
-	float x = atan2(2 * (AHRS.Q.Values[0] * AHRS.Q.Values[1] + AHRS.Q.Values[2] * AHRS.Q.Values[3]), 1 - 2 * (AHRS.Q.Values[1] * AHRS.Q.Values[1] + AHRS.Q.Values[2] * AHRS.Q.Values[2]));
-	float y = asin(2 * (AHRS.Q.Values[0] * AHRS.Q.Values[2] - AHRS.Q.Values[3] * AHRS.Q.Values[1]));
-	float z = atan2(2 * (AHRS.Q.Values[0] * AHRS.Q.Values[3] + AHRS.Q.Values[1] + AHRS.Q.Values[2]), 1 - 2 * (AHRS.Q.Values[2] * AHRS.Q.Values[2] + AHRS.Q.Values[3] * AHRS.Q.Values[3]));
-	z = z * 180 / PI;
-	z += z < 0 ? 360 : 0;
-	Serial.print("Yaw :"); Serial.print(z); Serial.print(" Pitch: "); Serial.print(y * 180 / PI); Serial.print(" Roll: "); Serial.println(x * 180 / PI);
+	if (index % 100 == 0)
+	{
+		float x = atan2(2 * (AHRS.Q.Values[0] * AHRS.Q.Values[1] + AHRS.Q.Values[2] * AHRS.Q.Values[3]), 1 - 2 * (AHRS.Q.Values[1] * AHRS.Q.Values[1] + AHRS.Q.Values[2] * AHRS.Q.Values[2]));
+		float y = asin(2 * (AHRS.Q.Values[0] * AHRS.Q.Values[2] - AHRS.Q.Values[3] * AHRS.Q.Values[1]));
+		float z = atan2(2 * (AHRS.Q.Values[0] * AHRS.Q.Values[3] + AHRS.Q.Values[1] + AHRS.Q.Values[2]), 1 - 2 * (AHRS.Q.Values[2] * AHRS.Q.Values[2] + AHRS.Q.Values[3] * AHRS.Q.Values[3]));
+		z = z * 180 / PI;
+		z += z < 0 ? 360 : 0;
+		Serial.print("Yaw :"); Serial.print(z); Serial.print(" Pitch: "); Serial.print(y * 180 / PI); Serial.print(" Roll: "); Serial.println(x * 180 / PI);
+	}
+	index++;
 	delay(1000 / samplesPerSecond);
 
 }
