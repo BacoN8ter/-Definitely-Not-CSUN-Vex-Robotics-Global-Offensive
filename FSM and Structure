@@ -1,0 +1,1 @@
+This file contains the RobotC files for the Autonomous. Everything is controlled via a finite state machine and incorporates xy theta and object search/ detection
