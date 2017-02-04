@@ -25,6 +25,7 @@
 
 
 
+
 void pre_auton()
 {
   // Set bStopTasksBetweenModes to false if you want to keep user created tasks
@@ -53,7 +54,7 @@ task autonomous()
 	{
 	//drive to unlock claw
 	SetDrive(127);
-	wait1Msec(500);
+	wait1Msec(400);
 	startTask(StarLift);
 	SetDrive(-127);
 	wait1Msec(250);
@@ -61,7 +62,7 @@ task autonomous()
 
 	//drive to fence
 	startTask(OpenClaw);
-	MoveForward(475);
+	MoveForward(515);
 
 	//stopTask OpenClaw if still in existence
 	stopTask(StarLift);
@@ -77,12 +78,12 @@ task autonomous()
 	wait1Msec(750);
 
 	//turn to cube
-	TurnLeft(150);
+	TurnLeft(110);
 	SetDrive(0);
 	wait1Msec(250);
 
 	//move forward and grab cube
-	MoveForward(210);
+	MoveForward(210)
 	stopTask(LowLift);
 	CloseClaw();
 	wait1Msec(500);
@@ -90,7 +91,7 @@ task autonomous()
 	MoveForward(100);
 	SetDrive(0);
 	wait1Msec(250);
-	TurnRight(160);
+	TurnRight(180);
 
 	SetDrive(0);
 	wait1Msec(250);
@@ -104,7 +105,7 @@ task autonomous()
 	SetDrive(0);
 	wait1Msec(500);
 	startTask(LowLift);
-	TurnLeft(240);
+	TurnLeft(260);
 	MoveForward(170);
 	stopTask(LowLift);
 	CloseClaw();
@@ -206,19 +207,23 @@ task autonomous()
 		//Move back and turn while lowering lift
 		MoveBackward(-420);
 		SetDrive(0);
-		wait1Msec(500);
+		wait1Msec(1000);
 		startTask(LowLift);
-		TurnLeft(300);
-		MoveForward(180);
+		TurnLeft(200);
+		MoveForward(190);
 		stopTask(LowLift);
 		CloseClaw();
 		startTask(HighLift);
 		TurnLeft(200);
-		MoveForward(480);
+		MoveForward(520);
 		stopTask(HighLift);
 		startTask(OpenClaw);
 
 	}
+	SetLift(0);
+	SetDrive(0);
+
+
 	wait1Msec(10000);
 }
 

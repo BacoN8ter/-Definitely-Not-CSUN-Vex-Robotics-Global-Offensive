@@ -159,7 +159,7 @@ void CloseClaw()
 {
 	SetClaw(127);
 	wait1Msec(1000);
-	SetClaw(100);
+	SetClaw(110);
 }
 
 task UpdateSensors()
