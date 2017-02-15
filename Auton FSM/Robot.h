@@ -26,6 +26,13 @@ typedef struct
 	int Heading;
 }Robot;
 
+typedef struct
+{
+	float x;
+	float y;
+	/*color?*/
+}Waypoint;
+
 /*
 Encoder struct is a better way of defining an encoder.
 Normally, FLL and Vex encoders have 360 ticks per rotation.
@@ -41,7 +48,7 @@ typedef struct
 
 Robot Bot;
 Encoder leftDriveEnc, rightDriveEnc;
-
+Waypoint wayPoint;
 
 //Functions
 float CalculateDistance(Encoder EncoderL, Encoder EncoderR);
@@ -72,6 +79,17 @@ task UpdatePosition()
 		time1[T1] = 0;
 	}
 }
+bool ComparePosition(float x, float X)
+{
+	if(abs(X-x) < 0.5)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 float Minimum(float A, float B)
 {
@@ -89,8 +107,8 @@ float CalculateDistance(Encoder EncoderL,Encoder EncoderR)
 	EncoderL.prevTick = EncoderL.currTick;
 	EncoderR.prevTick = EncoderR.currTick;
 
-	EncoderL.currTick = Average(nMotorEncoder[leftDrive1], nMotorEncoder[leftDrive2]);
-	EncoderR.currTick = Average(nMotorEncoder[rightDrive1], nMotorEncoder[rightDrive2]);
+	EncoderL.currTick = SensorValue[leftDriveEncoder];
+	EncoderR.currTick = SensorValue[rightDriveEncoder];
 	// 20cm wheel circumfrence
 	return EncoderR.gearRatio * wheelCircumference * Average(EncoderL.currTick - EncoderL.prevTick, EncoderR.currTick - EncoderR.prevTick) / 360.0;
 }

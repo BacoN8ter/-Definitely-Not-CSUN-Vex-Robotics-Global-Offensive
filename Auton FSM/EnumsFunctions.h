@@ -4,7 +4,7 @@
 SubStates subState = IdleClaw;
 Phase phase = Instruction;
 
-void IdleRobotState(States *state)
+States IdleRobotState(States state)
 {
 	Stop();
 	/*"roaming phase" -> findObj*/
@@ -14,61 +14,104 @@ void IdleRobotState(States *state)
 	}
 	if(phase == Instruction)
 	{
-		*state = GoToObj;
+		return GoToObj;
+	}
+	else
+	{
+		return IdleRobot;
 	}
 }
 
-void FindObjState(States *state)
+States FindObjState(States state)
 {
-	/*object found -> GoToObj*/
+	/* search for object */
 }
 
-void GoToObjState(States *state)
+States GoToObjState(States state)
 {
 	/*at obj position and see it -> GrabObj*/
+	Move(wayPoint.x,wayPoint.y);
+	if(ComparePosition(Bot.X, wayPoint.x) && ComparePosition(Bot.Y,wayPoint.y))
+	{
+		return GrabObj;
+	}
+	else
+	{
+		return GoToObj;
+	}
 }
 
-void GrabObjState(States *state)
+States GrabObjState(States state)
 {
 	switch(subState)
 			{
 			case IdleClaw:
+			subState = OpenClaw;
 				break;
 
 			case OpenClaw:
+			/*open the claw*/
+			/*Drive forward to pick up obj*/
+			subState = CloseClaw;
 				break;
 
 			case CloseClaw:
+			/*CloseClaw*/
+			subState = LiftClaw;
 				break;
 
 			case LiftClaw:
 			/*obj has been grabbed and lifted -> update map*/
+			return UpdateMap;
 				break;
 			}
+			return GrabObj;
 }
 
-void UpdateMapState(States *state)
+States UpdateMapState(States state)
 {
 	/*map updated -> GoToFence*/
+	if(true)
+	{
+		return GoToFence;
+	}
+	else
+	{
+		return UpdateMap;
+	}
 }
 
-void GoToFenceState(States *state)
+States GoToFenceState(States state)
 {
 	/*found a fence spot ->score*/
+	if(true)
+	{
+		return Score;
+	}
+	else
+	{
+	}
 }
 
-void ScoreState(States *state)
+States ScoreState(States state)
 {
 		switch(subState)
 			{
 			case LiftClaw:
+			/*lift Claw and approach fence*/
+			subState = OpenClaw;
 				break;
 
 			case OpenClaw:
+			/*Open claw*/
+			subState = IdleClaw;
 				break;
 
 			case IdleClaw:
 			/*obj have been dropped -> idle state*/
+			/*get distance and low claw again*/
+			return IdleRobot;
 				break;
 			}
+			return Score;
 }

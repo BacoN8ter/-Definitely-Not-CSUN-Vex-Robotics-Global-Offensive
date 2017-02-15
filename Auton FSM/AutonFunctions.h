@@ -39,10 +39,12 @@ void Turn(int targetAngle)
 		int power = difference * KpT;
 		power = power < -100 ? -100 : power;
 		power = power > 100 ? 100 : power;
-		motor[leftDrive1] = power;
-		motor[leftDrive2] = power;
-		motor[rightDrive1] = -power;
-		motor[rightDrive2] = -power;
+		motor[leftDriveCenter] = power;
+		motor[leftDriveBack] = power;
+		motor[leftDriveFront] = power;
+		motor[rightDriveCenter] = -power;
+		motor[rightDriveBack] = -power;
+		motor[rightDriveFront] = -power;
 
 		while(time1[T2] < 10){}
 		time1[T2] = 0;
@@ -66,10 +68,14 @@ void Move(float X, float Y){
 		//float angleOffset = (AngleBetween(Bot.X, Bot.Y, X, Y) - Bot.Heading);
 		power = power >= 100 ? 100 : power;
 
-		motor[leftDrive1] = power;// + angleOffset;
-		motor[leftDrive2] = power;// + angleOffset;
-		motor[rightDrive1] = power;// - angleOffset;
-		motor[rightDrive2] = power;// - angleOffset;
+		motor[leftDriveCenter] = power;// + angleOffset;
+		motor[leftDriveFront] = power;// + angleOffset;
+		motor[leftDriveBack] = power;// + angleOffset;
+
+		motor[rightDriveCenter] = power;// - angleOffset;
+		motor[rightDriveFront] = power;// - angleOffset;
+		motor[leftDriveBack] = power;// + angleOffset;
+
 
 		while(time1[T2] < 100){
 		}
@@ -78,8 +84,10 @@ void Move(float X, float Y){
 }
 
 void Stop(){
-		motor[leftDrive1] = 0;
-		motor[leftDrive2] = 0;
-		motor[rightDrive1] = 0;
-		motor[rightDrive2] = 0;
+		motor[leftDriveCenter] = 0;
+		motor[leftDriveFront] = 0;
+		motor[leftDriveBack] = 0;
+		motor[rightDriveBack] = 0;
+		motor[rightDriveFront] = 0;
+		motor[rightDriveCenter] = 0;
 }
