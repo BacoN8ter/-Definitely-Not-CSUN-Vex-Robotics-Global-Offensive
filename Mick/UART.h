@@ -34,28 +34,43 @@ task UARTReceive()
 		// Loop forever getting characters from the "receive" UART. Validate that they arrive in the expected
 		// sequence.
 
-		rcvChar = getChar(uartTwo);
+		rcvChar = getChar(uartOne);
 		if (rcvChar == -1)
 		{
 			// No character available
+			sendChar(uartOne, ':');
+			while (!bXmitComplete(uartOne))
+		 	{
+ 				wait1Msec(1);
+ 			}
+			sendChar(uartOne, '0');
+			while (!bXmitComplete(uartOne))
+		 	{
+ 				wait1Msec(1);
+ 			}
+			sendChar(uartOne, '\n');
+			while (!bXmitComplete(uartOne))
+		 	{
+ 				wait1Msec(1);
+ 			}
 
-			wait1Msec(3); // Don't want to consume too much CPU time. Waiting eliminates CPU consumption for this task.
 			continue;
 		}
-		rcvChars[nRcvIndex] = rcvChar;
-		++nRcvIndex;
-		if(rcvChar == '}')
+		else
 		{
-			Parse();
+			rcvChars[nRcvIndex] = rcvChar;
+			++nRcvIndex;
+			if(rcvChar == '}')
+			{
+				Parse();
+			}
+
+			if (nRcvIndex >= sizeof(rcvChars))
+			{
+				nRcvIndex = 0;
+			}
 		}
-
-		if (nRcvIndex >= sizeof(rcvChars))
-		{
-			nRcvIndex = 0;
-
-
-		}
-
+		wait1Msec(1);
 	}
 }
 
@@ -134,7 +149,8 @@ void Parse()
 
 void configureSerial()
 {
-	configureSerialPort(uartTwo, uartUserControl);
-	setBaudRate(uartTwo, baudRate19200);
+	configureSerialPort(uartOne, uartUserControl);
+	setBaudRate(uartOne,baudRate115200);
+
 	startTask(UARTReceive);
 }

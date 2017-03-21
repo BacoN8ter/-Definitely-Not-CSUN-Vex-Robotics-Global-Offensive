@@ -1,3 +1,4 @@
+#define AUTONDEADZONE 50
 
 struct Potentiometer{
 	int value;
@@ -34,8 +35,7 @@ void SetDriveTurn(int power)
 
 void SetClaw(int power)
 {
-	  motor[leftRoller] = power;
-	  motor[rightRoller] = power;
+
 }
 
 void SetLift(int power)
@@ -54,10 +54,10 @@ void MoveForward(int distance)
 	while(travel < distance)
 	{
 			int error = distance - travel;
-			error = (abs(error) > DEADZONE) ? error : DEADZONE;
+			error = (abs(error) > AUTONDEADZONE) ? error : AUTONDEADZONE;
 			SetDrive(error);
 			wait1Msec(1);
-			travel = SensorValue[leftDriveEncoder] + SensorValue[rightDriveEncoder] / 2;
+			travel = (SensorValue[leftDriveEncoder] + SensorValue[rightDriveEncoder]) / 2;
 	}
 	SetDrive(0);
 }
@@ -71,10 +71,25 @@ void MoveBackward(int distance)
 	while(travel > distance)
 	{
 			int error = distance - travel;
-			error = (abs(error) > DEADZONE) ? error : DEADZONE;
+			error = (abs(error) > AUTONDEADZONE) ? error : sgn(error) * AUTONDEADZONE;
 			SetDrive(error);
 			wait1Msec(1);
-			travel = SensorValue[leftDriveEncoder] + SensorValue[rightDriveEncoder] / 2;
+			travel = (SensorValue[leftDriveEncoder] + SensorValue[rightDriveEncoder]) / 2;
+	}
+	SetDrive(0);
+}
+
+void TurnGyro(int angle)
+{
+	SensorValue[gyro] = 0;
+	float kp = 0.05;
+
+	while(abs(SensorValue[gyro] - angle) > 10)
+	{
+		float error = angle - SensorValue[gyro];
+		error = abs(error * kp) < AUTONDEADZONE ? sgn(error) * AUTONDEADZONE : error * kp;
+		SetDriveTurn(-error);
+		wait1Msec(10);
 	}
 	SetDrive(0);
 }
@@ -87,7 +102,7 @@ void TurnLeft(int degrees)
 	while(travel < degrees)
 	{
 			int error = degrees - travel;
-			error = (abs(error) > DEADZONE) ? error : DEADZONE;
+			error = (abs(error) > AUTONDEADZONE) ? error : AUTONDEADZONE;
 			SetDriveTurn(error);
 			wait1Msec(1);
 			travel = SensorValue[rightDriveEncoder];
@@ -103,7 +118,7 @@ void TurnRight(int degrees)
 	while(travel < degrees)
 	{
 			int error = degrees - travel;
-			error = (abs(error) > DEADZONE) ? error : DEADZONE;
+			error = (abs(error) > AUTONDEADZONE) ? error : AUTONDEADZONE;
 			SetDriveTurn(-error);
 			wait1Msec(1);
 			travel = SensorValue[leftDriveEncoder];
@@ -114,21 +129,21 @@ void TurnRight(int degrees)
 task StarLift()
 {
 	SetLift(-127);
-	wait1Msec(725);
-	SetLift(0);
+	wait1Msec(800);
+	SetLift(-10);
 }
 
 task HighLift()
 {
 	SetLift(-127);
 	wait1Msec(1000);
-	SetLift(-40);
+	SetLift(-80);
 }
 
 task LowLift()
 {
 	SetLift(127);
-	wait1Msec(1000);
+	wait1Msec(1500);
 	SetLift(0);
 }
 
@@ -155,11 +170,26 @@ void ReleasePayload()
 	SetClaw(0);
 }
 
+
 void CloseClaw()
 {
 	SetClaw(127);
 	wait1Msec(1000);
 	SetClaw(110);
+}
+
+task CloseClawNonBlocking()
+{
+	SetClaw(127);
+	wait1Msec(1000);
+	SetClaw(90);
+}
+
+task CloseClawSlight()
+{
+	SetClaw(127);
+	wait1Msec(100);
+	SetClaw(0);
 }
 
 task UpdateSensors()

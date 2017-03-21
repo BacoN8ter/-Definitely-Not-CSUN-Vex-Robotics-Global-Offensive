@@ -7,13 +7,12 @@ ch3 <- left drive
 ch2 <- right drive
 Only assigns if above a DEADZONE
 */
-#define DEADZONE 30
+#define DEADZONE 40
 
 void Drive()
 {
 	int rightPower = vexRT[Ch2];
 	int leftPower = vexRT[Ch3];
-
 
 	rightPower = (abs(rightPower) > DEADZONE) ? rightPower : 0;
 	leftPower = (abs(leftPower) > DEADZONE) ? leftPower : 0;
@@ -36,33 +35,38 @@ Lift controls
 void Lift()
 {
 	if(vexRT[Btn6U]==1){
-		motor[leftLift] = -127;
-		motor[rightLift] = -127;
+		motor[leftLift] =   -127;
+		motor[leftLift2] =  -127;
+		motor[rightLift] =  -127;
+		motor[rightLift2] = -127;
 	}
 	else if(vexRT[Btn6D]==1){
-		motor[leftLift] = 127;
-		motor[rightLift] = 127;
+		motor[leftLift] =   127;
+		motor[leftLift2] =  127;
+		motor[rightLift] =  127;
+		motor[rightLift2] = 127;
 	}
 	else
 	{
-		motor[leftLift] = 0;
-		motor[rightLift] = 0;
+		motor[leftLift] =   0;
+		motor[leftLift2] =  0;
+		motor[rightLift] =  0;
+		motor[rightLift2] = 0;
 	}
 }
 
-void Roller()
+bool Pressed = false;
+void Claw()
 {
-	if(vexRT[Btn5U]== 1){
-	  motor[leftRoller] = 127;
-	  motor[rightRoller] = 127;
-  }
-  else if(vexRT[Btn5D]== 1){
-    motor[leftRoller] = -127;
-    motor[rightRoller] = -127;
-  }
-  else
-  {
-  	 motor[leftRoller] = 0;
-     motor[rightRoller] = 0;
-  }
+	//needs pnuematics
+	if(vexRT[Btn5U] && !Pressed)
+	{
+		ClawPosition = !ClawPosition;
+		SensorValue[ClawPort] = ClawPosition;
+		Pressed = true;
+	}
+	else if(!vexRT[Btn5U])
+	{
+		Pressed = false;
+	}
 }
