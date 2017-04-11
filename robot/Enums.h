@@ -22,7 +22,7 @@ namespace robot
     {
             int currTick;
             int prevTick;
-            float gearRatio = 4/3;
+            float gearRatio;
     }Encoder;
 
     //different states in FSM state machine
@@ -44,7 +44,8 @@ namespace robot
             IdleClaw,
             OpenClaw,
             CloseClaw,
-            LiftClaw
+            LiftClaw,
+            ScoreClaw
     };
     
     //the phase of the robot. 

@@ -3,20 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-#include <Robot.h>
-#include <Enums.h>
-using namespace robot;
+#include "Robot.h"
+#include "Enums.h"
     ////////////////////////////////////////////////////////////////////////
-    States IdleRobotState(States state)
+namespace robot
+{
+    
+    States IdleRobotState(States state,Robot& rbt)
     {
-        Robot::Stop();
+        rbt.Stop();
         /*"roaming phase" -> findObj*/
         /*"instruction phase" -> GoToObj*/
-        if(Robot::phase == Roam)
+        ROS_INFO_STREAM("IDLE");
+        if(rbt.phase == Roam)
         {
             return FindObj;
         }
-        if(Robot::phase == Instruction)
+        if(rbt.phase == Instruction)
         {
             return GoToObj;
         }
@@ -26,56 +29,65 @@ using namespace robot;
         }
     }
 
-    States FindObjState(States state)
+    States FindObjState(States state,Robot& rbt)
     {
             /* search for object */
+        
+        ROS_INFO_STREAM("FIND");
+            /*if obj is found. state=GoToObj*/
     }
 
-    States GoToObjState(States state)
+    States GoToObjState(States state,Robot& rbt)
     {
         /*at obj position and see it -> GrabObj*/
-        Robot::Move();
         
-        if(ComparePosition(Robot::localPose.x,Robot::wayPoint.x) && ComparePosition(Robot::localPose.y,Robot::wayPoint.y))
+        ROS_INFO_STREAM("GOTO");
+        if(ComparePosition(rbt.localPose.x,rbt.wayPoint.x) && ComparePosition(rbt.localPose.y,rbt.wayPoint.y))
         {
             return GrabObj;
         }
         else
         {
+            rbt.Move();
             return GoToObj;
         }
     }
 
-    States GrabObjState(States state)
+    States GrabObjState(States state,Robot& rbt)
     {
-        switch(Robot::subState)
+        
+        ROS_INFO_STREAM("GRAB");
+        switch(rbt.subState)
         {
             case IdleClaw:
-                Robot::subState = OpenClaw;
+                rbt.subState = OpenClaw;
                 break;
 
             case OpenClaw:
                 /*open the claw*/
                 /*Drive forward to pick up obj*/
-                Robot::subState = CloseClaw;
+                rbt.subState = CloseClaw;
                 break;
 
             case CloseClaw:
                 /*CloseClaw*/
-                Robot::subState = LiftClaw;
+                rbt.subState = LiftClaw;
                 break;
 
             case LiftClaw:
                 /*obj has been grabbed and lifted -> update map*/
+                /*if time is too low. go to fence*/
                 return UpdateMap;
                 break;
         }
         return GrabObj;
     }
 
-    States UpdateMapState(States state)
+    States UpdateMapState(States state,Robot& rbt)
     {
         /*map updated -> GoToFence*/
+        
+        ROS_INFO_STREAM("UPDATE");
         if(true)
         {
             return GoToFence;
@@ -86,42 +98,50 @@ using namespace robot;
         }
     }
 
-    States GoToFenceState(States state)
+    States GoToFenceState(States state,Robot& rbt)
     {
-        /*found a fence spot ->score*/
-        if(true)
+        
+        ROS_INFO_STREAM("FENCE");
+        bool fenceSpotFound = false;
+        /*set waypoint to fence spot. fenceSpotFound = true*/
+        if(fenceSpotFound == true)
         {
-            return Score;
+            /*found fence spot. Move to score area*/
+            if(ComparePosition(rbt.localPose.x,rbt.wayPoint.x) < 1 && ComparePosition(rbt.localPose.y,rbt.wayPoint.y)<1)
+            {
+                return Score;/*at fence spot ->score*/
+            }
+            else
+            {
+                rbt.Move();
+            }
         }
         else
         {
+            return GoToFence;
         }
     }
 
-    States ScoreState(States state)
+    States ScoreState(States state,Robot& rbt)
     {
-        switch(Robot::subState)
+        
+        ROS_INFO_STREAM("SCORE");
+        switch(rbt.subState)
         {
-            case LiftClaw:
-                /*lift Claw and approach fence*/
-                Robot::subState = OpenClaw;
+            case ScoreClaw:
+                /*move claw upwards and open claw*/
+                rbt.subState = IdleClaw;
                 break;
 
-            case OpenClaw:
-                /*Open claw*/
-                Robot::subState = IdleClaw;
-                break;
-
-            case IdleClaw:
-                /*obj have been dropped -> idle state*/
-                /*get distance and low claw again*/
+            case IdleClaw:/*obj have been dropped -> idle state*/
+                /*get distance and lower claw again*/
                 return IdleRobot;
                 break;
         }
         return Score;
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
-    void FSM()
+    void FSM(Robot& rbt)
     {
         //test movement with random points
         /*while(true)
@@ -131,42 +151,42 @@ using namespace robot;
         Move(0, 0);
         Stop();
         }*/
-
+        
         //FSM
-        States state = Start;
-        switch(state)
+        switch(rbt.state)
         {
         case Start:
-            state = IdleRobot;
+            rbt.state = IdleRobot;
             break;
 
         case IdleRobot:
-            state = IdleRobotState(state);
+           rbt.state = IdleRobotState(rbt.state,rbt);
             break;
 
         case FindObj:
-            state = FindObjState(state);
+           rbt.state = FindObjState(rbt.state,rbt);
             break;
 
         case GoToObj:
-            state = GoToObjState(state);
+            rbt.state = GoToObjState(rbt.state,rbt);
             break;
 
         case GrabObj:
-            state = GrabObjState(state);
+            rbt.state = GrabObjState(rbt.state,rbt);
             break;
 
         case UpdateMap:
-            state = UpdateMapState(state);
+            rbt.state = UpdateMapState(rbt.state,rbt);
             break;
 
         case GoToFence:
-            state = GoToFenceState(state);
+            rbt.state = GoToFenceState(rbt.state,rbt);
             break;
 
         case Score:
-            state = ScoreState(state);
+            rbt.state = ScoreState(rbt.state,rbt);
             break;
 
         }
     }
+}

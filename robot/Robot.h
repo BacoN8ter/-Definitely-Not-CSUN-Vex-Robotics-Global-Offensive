@@ -13,15 +13,13 @@
 
 #ifndef ROBOT_H
 #define ROBOT_H
-#include <cmath>
 #include <iostream>
-#include <stdlib.h>
-#include <Enums.h>
-#include <RobotMath.h>
 #include <ros/ros.h>
-#include <Locomotion.cpp>
 #include <geometry_msgs/Pose2D.h>
 #include <tf/tf.h>
+#include <std_msgs/Int32.h>
+#include <stdlib.h>
+#include "Enums.h"
 
 namespace robot
 {
@@ -30,8 +28,8 @@ namespace robot
         Robot();
         virtual ~Robot();
         
-        ros::Subscriber sub_leftDriveEnc,
-                        sub_rightDriveEnc,
+        ros::Subscriber sub_leftDriveEncTick,
+                        sub_rightDriveEncTick,
                         sub_wayPoint,
                         sub_gyro;
        
@@ -51,19 +49,22 @@ namespace robot
         SubStates subState = IdleClaw;
         Phase phase = Instruction;
         
+        States state = Start;
+        
         int motor[6];//list of motors. 0->5 for the left and right side motors
         
         void Initialize();
         void Stop();
         void Turn(double targetAngle);
         void Move();
-        void UpdatePosition();
-        void Run();
+        void UpdatePosition(const ros::TimerEvent& event,Robot& rbt);
+        void Run(Robot& rbt);
+        void leftDriveEncCallback(const std_msgs::Int32& robotEncoder);
+        void rightDriveEncCallback(const std_msgs::Int32& robotEncoder);
+        void wayPointCallback(const geometry_msgs::Pose2D& newWaypoint);
+        void gyroCallback(const geometry_msgs::Quaternion& rpy);
     private:
-        void leftDriveEncCallback(Encoder& robotEncoder);
-        void rightDriveEncCallback(Encoder& robotEncoder);
-        void wayPointCallback(geometry_msgs::Pose2D& newWaypoint);
-        void gyroCallBack(tf::Quaternion& rpy);
+        
         
 
     };

@@ -13,11 +13,15 @@
 
 #ifndef ROBOTMATH_H
 #define ROBOTMATH_H
-#include <Robot.h>
+
+#include "Robot.h"
+
+#include <cmath>
 #define PI 3.14159265
 
 namespace robot
 {
+
     int radiansToDegrees(int radians)
     {
         return radians*(180/PI);
@@ -52,15 +56,14 @@ namespace robot
     }
 
     //this function calculates the distance traveled between updates
-    float CalculateDistance(Encoder EncoderL, Encoder EncoderR)
+    float CalculateDistance(Encoder EncoderL, Encoder EncoderR, Robot& rbt)
     {
         
         EncoderL.prevTick = EncoderL.currTick;
         EncoderR.prevTick = EncoderR.currTick;
-
-        EncoderL.currTick = Robot::leftDriveEnc.currTick;
-        EncoderR.currTick = Robot::rightDriveEnc.currTick;
-        return EncoderR.gearRatio * Robot::wheelCircumference * Average(EncoderL.currTick - EncoderL.prevTick, EncoderR.currTick - EncoderR.prevTick) / 360.0;
+        EncoderL.currTick = rbt.leftDriveEnc.currTick;
+        EncoderR.currTick = rbt.rightDriveEnc.currTick;
+        return EncoderR.gearRatio * rbt.wheelCircumference * Average(EncoderL.currTick - EncoderL.prevTick, EncoderR.currTick - EncoderR.prevTick) / 360.0;
     }
 }
 #endif /* ROBOTMATH_H */

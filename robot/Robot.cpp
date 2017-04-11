@@ -12,18 +12,23 @@
  */
 
 #include "Robot.h"
+#include "RobotMath.h"
+#include "Locomotion.cpp"
+
+#include <cmath>
+
 #define KpT 0.9
 #define KpD 4.5
 #define TimeStep 100.0
-using namespace robot;
-        
+namespace robot
+{
     Robot::Robot() {
         this->Initialize();
     }
 
     Robot::~Robot() {
     }
-
+    
     void Robot::Initialize()
     {
         ros::NodeHandle nh;
@@ -31,11 +36,13 @@ using namespace robot;
         localPose.y = 0;
         localPose.theta = 0;//degrees
         
-        sub_gyro = nh.subscribe("gyro",1000,&gyroCallback,this);
-        sub_leftDriveEnc = nh.subscribe("leftDriveEnc",1000,&leftDriveEncCallback,this);
-        sub_rightDriveEnc = nh.subscribe("rightDriveEnc",1000,&rightDriveEncCallback,this);
-        sub_wayPoint = nh.subscribe("waypoint",1000,&wayPointCallback,this);
-                
+        
+        sub_gyro = nh.subscribe("gyro",1000,&Robot::gyroCallback,this);
+        sub_leftDriveEncTick = nh.subscribe("leftDriveEnc",1000,&Robot::leftDriveEncCallback,this);
+        sub_rightDriveEncTick = nh.subscribe("rightDriveEnc",1000,&Robot::rightDriveEncCallback,this);
+        sub_wayPoint = nh.subscribe("waypoint",1000,&Robot::wayPointCallback,this);
+        leftDriveEnc.gearRatio= 4/3;
+        rightDriveEnc.gearRatio= 4/3;   
     }
     
     //turns the desired amount of degrees in the proper direction
@@ -45,27 +52,17 @@ using namespace robot;
         //proportional control turning
         double difference = (targetAngle - localPose.theta);
         //calculate to see if it is faster to turn left or right
-        while(difference > 180)
+        if(difference > 180)
         {
                 difference -= 360;
         }
-        while(difference < -180)
+        if(difference < -180)
         {
                 difference += 360;
         }
         //p control
-        while(abs(difference) > 1)
+        if(abs(difference) > 1)
         {
-            difference = (targetAngle - localPose.theta);
-            while(difference > 180)
-            {
-                    difference -= 360;
-            }
-            while(difference < -180)
-            {
-                    difference += 360;
-            }
-
             int power = difference * KpT;
             power = power < -100 ? -100 : power;
             power = power > 100 ? 100 : power;
@@ -86,7 +83,7 @@ using namespace robot;
         //calculate hypotenuse
         float difference = sqrt(pow(localPose.x - wayPoint.x, 2) + pow(localPose.y - wayPoint.y, 2));
         //p control for driving the hypotenuse
-        while(difference > 0.05)
+        if(difference > 0.05)
         {
             difference -= sqrt(pow(xSpeed, 2) + pow(ySpeed, 2));
 
@@ -105,12 +102,12 @@ using namespace robot;
         }
     }
     
-    void Robot::UpdatePosition()
+    void Robot::UpdatePosition(const ros::TimerEvent& event,Robot& rbt)
     {
-        float distance = CalculateDistance(leftDriveEnc,rightDriveEnc);
+        float distance = CalculateDistance(leftDriveEnc,rightDriveEnc,rbt);
 
-        localPose.theta = gyro.w % 360; //this keeps the robot direction constrained to the range 0-360 degrees
-
+        localPose.theta = (double)((int)gyro.w % 360); //this keeps the robot direction constrained to the range 0-360 degrees
+ 
         //calculate the distance the robot has traveled along its path (the hypotenuse)
         xSpeed = cosh(localPose.theta) * distance;
         ySpeed = sinh(localPose.theta) * distance;
@@ -129,26 +126,30 @@ using namespace robot;
         motor[rightTop] = 0;
     }
     
-    void Robot::Run()
+    void Robot::Run(Robot& rbt)
     {
-        FSM();
+        FSM(rbt);
+        ros::NodeHandle nh;
+        ROS_INFO_STREAM("ITS RUNNING");
+        //ros::Timer timer = nh.createTimer(ros::Duration(0.01),&Robot::UpdatePosition);
     }
     
-    void leftDriveEncCallback(Encoder& robotEncoder)
+    
+    void Robot::leftDriveEncCallback(const std_msgs::Int32& robotEncoderTick)
     {
-        Robot::leftDriveEnc = robotEncoder;
+        leftDriveEnc.currTick = robotEncoderTick.data;
     }
-    void rightDriveEncCallback(Encoder& robotEncoder)
+    void Robot::rightDriveEncCallback(const std_msgs::Int32& robotEncoderTick)
     {
-        Robot::rightDriveEnc = robotEncoder;
+       rightDriveEnc.currTick = robotEncoderTick.data;
     }
-    void wayPointCallback(geometry_msgs::Pose2D& newWaypoint)
+    void Robot::wayPointCallback(const geometry_msgs::Pose2D& newWaypoint)
     {
-        Robot::wayPoint = newWaypoint;
+        wayPoint = newWaypoint;
     }
-    void gyroCallback(tf::Quaternion& rpy)
+    void Robot::gyroCallback(const geometry_msgs::Quaternion& rpy)
     {
-         Robot::gyro = rpy;
+         gyro = rpy;
     }
    
-    
+}
