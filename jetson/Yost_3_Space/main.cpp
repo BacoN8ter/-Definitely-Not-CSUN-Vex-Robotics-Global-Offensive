@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     write(fd, &Quatcmd[0], 1);
     write(fd, &Quatcmd[1], 1);
     //write(fd, &cmd[2], 1);  
-    write(fd, &cmd[3], 1);
+    write(fd, &Quatcmd[3], 1);
     
     memset(buf, '\0', bufSize);
     n = read(fd, buf, bufSize);
