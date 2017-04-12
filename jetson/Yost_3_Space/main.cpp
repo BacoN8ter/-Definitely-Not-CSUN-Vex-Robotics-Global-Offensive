@@ -21,14 +21,14 @@
 
 #define DEBUG 1
   
-struct Quaternion
+struct Euler
 {
-  float a, b, c, w;
+  float roll, pitch, yaw;
 };
 
-Quaternion q;
+Euler e;
 
-void ParseQuaternion(char * buf, int bufLen)
+void ParseEuler(char * buf, int bufLen)
 {
   int index = 0;
   int count = 0;
@@ -48,20 +48,16 @@ void ParseQuaternion(char * buf, int bufLen)
       {
 
       case 0:
-	q.a = atof(number); 
-	printf("A:%f\n",q.a);
+	e.roll = atof(number); 
+	printf("Roll:%f\n",e.roll);
 	break;
       case 1:
-	q.b = atof(number); 
-	printf("B:%f\n",q.b);
+	e.pitch = atof(number); 
+	printf("Pitch:%f\n",e.pitch);
 	break;
       case 2:
-	q.c = atof(number); 
-	printf("C:%f\n",q.c);
-	break;
-      case 3:
-	q.w = atof(number); 
-	printf("W:%f\n",q.w);
+	e.yaw = atof(number); 
+	printf("Yaw:%f\n",e.yaw);
 	break;
       }
 
@@ -78,8 +74,9 @@ int main(int argc, char *argv[])
   int fd, n, i;
   const int bufSize = 128;
 
-  char tarCmd [] = {':', 0x60, '0', '\n'};
-  char Quatcmd[] = {':', '0','1' ,'\n'};
+  char tarCmd [] = {':', 0x22, '0', '\n'};
+  char QuatCmd[] = {':', '0','0' ,'\n'};
+  char EulerCmd[] = {':', '1','0' ,'\n'};
   char buf[bufSize];
 
   struct termios toptions;
@@ -106,24 +103,29 @@ int main(int argc, char *argv[])
   /* commit the serial port settings */
   tcsetattr(fd, TCSANOW, &toptions);
 
+  //Tare
   write(fd, &tarCmd[0], 1);
   write(fd, &tarCmd[1], 1);
-  write(fd, &tarCmd[2], 1);  
+  //write(fd, &tarCmd[2], 1);  
   write(fd, &tarCmd[3], 1);
+
+
  
   while(true)
   {
 
-    write(fd, &Quatcmd[0], 1);
-    write(fd, &Quatcmd[1], 1);
-    //write(fd, &cmd[2], 1);  
-    write(fd, &Quatcmd[3], 1);
+    //Get Quaternion
+    write(fd, &EulerCmd[0], 1);
+    write(fd, &EulerCmd[1], 1);
+    //write(fd, &EulerCmd[2], 1);  
+    write(fd, &EulerCmd[3], 1);
     
+    //Clear buffer and read incomming bytes
     memset(buf, '\0', bufSize);
     n = read(fd, buf, bufSize);
     system("clear");
     /* insert terminating zero in the string */
-    ParseQuaternion(buf, n);
+    ParseEuler(buf, n);
     buf[n] = 0;
     
     usleep(100000);
