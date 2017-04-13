@@ -14,9 +14,7 @@
 #include "Robot.h"
 #include "RobotMath.h"
 #include "Locomotion.cpp"
-
-#include <cmath>
-
+#include "math.h"
 #define KpT 0.9
 #define KpD 4.5
 #define TimeStep 100.0
@@ -34,12 +32,11 @@ namespace robot
         ros::NodeHandle nh;
         localPose.x = 0;
         localPose.y = 0;
-        localPose.theta = 0;//degrees
+        localPose.theta = 0;//rpy in degrees 
         
-        
-        sub_gyro = nh.subscribe("gyro",1000,&Robot::gyroCallback,this);
-        sub_leftDriveEncTick = nh.subscribe("leftDriveEnc",1000,&Robot::leftDriveEncCallback,this);
-        sub_rightDriveEncTick = nh.subscribe("rightDriveEnc",1000,&Robot::rightDriveEncCallback,this);
+        sub_gyro = nh.subscribe("Robot/RPY",1000,&Robot::gyroCallback,this);
+        sub_leftDriveEncTick = nh.subscribe("Robot/LeftEnc",1000,&Robot::leftDriveEncCallback,this);
+        sub_rightDriveEncTick = nh.subscribe("Robot/RightEnc",1000,&Robot::rightDriveEncCallback,this);
         sub_wayPoint = nh.subscribe("waypoint",1000,&Robot::wayPointCallback,this);
         leftDriveEnc.gearRatio= 4/3;
         rightDriveEnc.gearRatio= 4/3;   
@@ -79,9 +76,9 @@ namespace robot
     void Robot::Move()
     {
         //turn to angle
-        Turn(AngleBetween(localPose.x, localPose.y, wayPoint.x, wayPoint.y));
+        Turn(AngleBetween(localPose.x, localPose.y, wayPoint.at(0).x, wayPoint.at(0).y));
         //calculate hypotenuse
-        float difference = sqrt(pow(localPose.x - wayPoint.x, 2) + pow(localPose.y - wayPoint.y, 2));
+        float difference = sqrt(pow(localPose.x - wayPoint.at(0).x, 2) + pow(localPose.y - wayPoint.at(0).y, 2));
         //p control for driving the hypotenuse
         if(difference > 0.05)
         {
@@ -101,12 +98,45 @@ namespace robot
             motor[leftBack] = power;// + angleOffset;
         }
     }
-    
-    void Robot::UpdatePosition(const ros::TimerEvent& event,Robot& rbt)
+    void Robot::MoveClaw(double targetAngle)
+    {
+//        if(clawAngle < targetAngle)
+//        {
+//           motor[claw] = 127;
+//        }
+//        else if(clawAngle > targetAngle)
+//        {
+//            motor[claw] = -127;
+//        }
+//        else
+//        {
+//            motor[claw] = 0;
+//        }
+    }
+    void Robot::MoveLift(double targetAngle)
+    {
+//         if(liftAngle < targetAngle) // too low
+//        {
+//            motor[liftLeftBottom] = 127;
+//            motor[liftRightBottom] = 127;
+//            motor[liftTop] = 127;
+//        }
+//         else if(liftAngle > targetAngle) //too high
+//        {
+//             motor[liftLeftBottom] = -127;
+//            motor[liftRightBottom] = -127;
+//            motor[liftTop] = -127;
+//        }
+//        else // perf
+//        {
+//            motor[liftLeftBottom] = 0;
+//            motor[liftRightBottom] = 0;
+//            motor[liftTop] = 0;
+//        }
+    }
+    void Robot::UpdatePosition(Robot& rbt)
     {
         float distance = CalculateDistance(leftDriveEnc,rightDriveEnc,rbt);
-
-        localPose.theta = (double)((int)gyro.w % 360); //this keeps the robot direction constrained to the range 0-360 degrees
  
         //calculate the distance the robot has traveled along its path (the hypotenuse)
         xSpeed = cosh(localPose.theta) * distance;
@@ -130,10 +160,8 @@ namespace robot
     {
         FSM(rbt);
         ros::NodeHandle nh;
-        ROS_INFO_STREAM("ITS RUNNING");
-        //ros::Timer timer = nh.createTimer(ros::Duration(0.01),&Robot::UpdatePosition);
+        ROS_INFO_STREAM_ONCE("ITS RUNNING");
     }
-    
     
     void Robot::leftDriveEncCallback(const std_msgs::Int32& robotEncoderTick)
     {
@@ -145,7 +173,7 @@ namespace robot
     }
     void Robot::wayPointCallback(const geometry_msgs::Pose2D& newWaypoint)
     {
-        wayPoint = newWaypoint;
+        wayPoint.push_back(newWaypoint);
     }
     void Robot::gyroCallback(const geometry_msgs::Quaternion& rpy)
     {

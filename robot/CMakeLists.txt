@@ -3,6 +3,7 @@ project(robot)
 
 find_package(catkin REQUIRED COMPONENTS roscpp
             geometry_msgs
+            tf
             std_msgs)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

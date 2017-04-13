@@ -5,20 +5,21 @@
  */
 #include "Robot.h"
 #include "Enums.h"
+using namespace std;
     ////////////////////////////////////////////////////////////////////////
 namespace robot
 {
-    
     States IdleRobotState(States state,Robot& rbt)
     {
         rbt.Stop();
         /*"roaming phase" -> findObj*/
         /*"instruction phase" -> GoToObj*/
         ROS_INFO_STREAM("IDLE");
-        if(rbt.phase == Roam)
+        if(rbt.phase == Find)
         {
             return FindObj;
         }
+        
         if(rbt.phase == Instruction)
         {
             return GoToObj;
@@ -31,10 +32,24 @@ namespace robot
 
     States FindObjState(States state,Robot& rbt)
     {
-            /* search for object */
-        
         ROS_INFO_STREAM("FIND");
-            /*if obj is found. state=GoToObj*/
+        /* search for object */
+        static bool searching = false;
+        if(rbt.gyro.w > 0)
+        {
+            rbt.Turn(90);
+        }
+        if(rbt.gyro.w == 0 || searching)
+        {
+            searching = true;
+            rbt.Turn(269);
+            /*if it detects objects, calculate value and if largest, save the location*/
+            if(rbt.gyro.w == 269)
+            {
+                searching = false;
+                return GoToObj;
+            }
+        }
     }
 
     States GoToObjState(States state,Robot& rbt)
@@ -42,7 +57,7 @@ namespace robot
         /*at obj position and see it -> GrabObj*/
         
         ROS_INFO_STREAM("GOTO");
-        if(ComparePosition(rbt.localPose.x,rbt.wayPoint.x) && ComparePosition(rbt.localPose.y,rbt.wayPoint.y))
+        if(ComparePosition(rbt.localPose.x,rbt.wayPoint.at(0).x) && ComparePosition(rbt.localPose.y,rbt.wayPoint.at(0).y))
         {
             return GrabObj;
         }
@@ -101,13 +116,13 @@ namespace robot
     States GoToFenceState(States state,Robot& rbt)
     {
         
-        ROS_INFO_STREAM("FENCE");
+        ROS_INFO_STREAM_ONCE("FENCE");
         bool fenceSpotFound = false;
         /*set waypoint to fence spot. fenceSpotFound = true*/
         if(fenceSpotFound == true)
         {
             /*found fence spot. Move to score area*/
-            if(ComparePosition(rbt.localPose.x,rbt.wayPoint.x) < 1 && ComparePosition(rbt.localPose.y,rbt.wayPoint.y)<1)
+            if(ComparePosition(rbt.localPose.x,rbt.wayPoint.at(0).x) < 1 && ComparePosition(rbt.localPose.y,rbt.wayPoint.at(0).y)<1)
             {
                 return Score;/*at fence spot ->score*/
             }
@@ -135,6 +150,7 @@ namespace robot
 
             case IdleClaw:/*obj have been dropped -> idle state*/
                 /*get distance and lower claw again*/
+                rbt.wayPoint.erase(rbt.wayPoint.begin()); //note: slow. change if it takes up too much processing time
                 return IdleRobot;
                 break;
         }

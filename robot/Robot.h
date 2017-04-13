@@ -19,8 +19,10 @@
 #include <tf/tf.h>
 #include <std_msgs/Int32.h>
 #include <stdlib.h>
+#include <vector>
+#include <cstdlib>
 #include "Enums.h"
-
+using namespace std;
 namespace robot
 {
     class Robot {
@@ -35,19 +37,21 @@ namespace robot
        
         geometry_msgs::Pose2D localPose,
                               prevPose;
+        
         Encoder leftDriveEnc,
                 rightDriveEnc;
         
-        geometry_msgs::Pose2D wayPoint;
+        vector<geometry_msgs::Pose2D> wayPoint;
                               
-        geometry_msgs::Quaternion gyro;
+        geometry_msgs::Quaternion gyro; //Euler angles of the robot
+        
         float xSpeed,
               ySpeed;//speed of the robot
         
         float wheelCircumference = 20.0;  // wheel circumfrence for vex omni. unit determines measurement of system. i.e circ -> inches means x,y -> inches
         
-        SubStates subState = IdleClaw;
-        Phase phase = Instruction;
+        SubStates subState = IdleClaw; //state of sub sunctions such as arm movement
+        Phase phase = Instruction; 
         
         States state = Start;
         
@@ -57,12 +61,14 @@ namespace robot
         void Stop();
         void Turn(double targetAngle);
         void Move();
-        void UpdatePosition(const ros::TimerEvent& event,Robot& rbt);
+        void UpdatePosition(Robot& rbt);
         void Run(Robot& rbt);
         void leftDriveEncCallback(const std_msgs::Int32& robotEncoder);
         void rightDriveEncCallback(const std_msgs::Int32& robotEncoder);
         void wayPointCallback(const geometry_msgs::Pose2D& newWaypoint);
         void gyroCallback(const geometry_msgs::Quaternion& rpy);
+        void MoveClaw(double targetAngle);
+        void MoveLift(double targetAngle);
     private:
         
         
