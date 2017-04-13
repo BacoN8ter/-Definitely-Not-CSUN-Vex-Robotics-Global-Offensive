@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   int fd, n, i;
   const int bufSize = 128;
 
-  char tarCmd [] = {':', 0x22, '0', '\n'};
+  char tarCmd [] = {':', '0', '0', '\n'};
   char QuatCmd[] = {':', '0','0' ,'\n'};
   char EulerCmd[] = {':', '1','0' ,'\n'};
   char buf[bufSize];
@@ -109,8 +109,15 @@ int main(int argc, char *argv[])
   //write(fd, &tarCmd[2], 1);  
   write(fd, &tarCmd[3], 1);
 
+  printf("%s\n", tarCmd);
 
+  memset(buf, '\0', bufSize);
+  n = read(fd, buf, bufSize);
+
+  printf("Response: %s", buf);
  
+  usleep(10000000);
+
   while(true)
   {
 
