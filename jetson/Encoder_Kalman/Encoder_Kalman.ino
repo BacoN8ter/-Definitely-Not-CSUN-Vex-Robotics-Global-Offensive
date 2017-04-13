@@ -111,18 +111,6 @@ void Potentiometer::Update()
   this->value = analogRead(this->port);
 }
 
-/*
-  #pragma config(Motor,  port1,           leftClaw,      tmotorVex393_HBridge, openLoop)
-  #pragma config(Motor,  port2,           left1,         tmotorVex393_MC29, openLoop)
-  #pragma config(Motor,  port3,           left2,         tmotorVex393_MC29, openLoop, reversed)
-  #pragma config(Motor,  port4,           left3,         tmotorVex393_MC29, openLoop)
-  #pragma config(Motor,  port5,           leftLift,      tmotorVex393_MC29, openLoop)
-  #pragma config(Motor,  port6,           rightLift,     tmotorVex393_MC29, openLoop)
-  #pragma config(Motor,  port7,           right3,        tmotorVex393_MC29, openLoop, reversed)
-  #pragma config(Motor,  port8,           right2,        tmotorVex393_MC29, openLoop)
-  #pragma config(Motor,  port9,           right1,        tmotorVex393_MC29, openLoop, reversed)
-  #pragma config(Motor,  port10,          rightClaw,     tmotorVex393_HBridge, openLoop, reversed)
-*/
 
 Motor *motors[10];
 
