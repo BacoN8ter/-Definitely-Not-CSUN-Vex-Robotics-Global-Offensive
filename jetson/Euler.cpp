@@ -20,7 +20,7 @@
 #include <string>
 #include <ros/ros.h>
 #include <std_msgs/Int32.h>
-#include<geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Quaternion.h>
 #define DEBUG 1
   
 struct Euler
@@ -161,12 +161,15 @@ enum Motors_s
   liftRightBottom,
   liftTop,
   claw
-}
-int Motors[10]
+};
+int motors[10];
 
 char tarCmd [] = {':', '`', '0', '\n'};
 char QuatCmd[] = {':', '0','0' ,'\n'};
 char EulerCmd[] = {':', '1','0' ,'\n'};
+char comma[] = {','};
+char closeBrace[] = {'}'};
+
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "Sensors_ros");
@@ -185,7 +188,7 @@ int main(int argc, char *argv[])
     std_msgs::Int32 clawPot;
     
   pid_t pid = fork();
-  printf("pid: %d", pid);
+  printf("pid: %d\n", pid);
   if(pid > 0)
   {
     int fd, n, i;
@@ -305,8 +308,8 @@ int main(int argc, char *argv[])
       memset(buf, '\0', 128);
 
       /* read up to 128 bytes from the fd */
-      int n = read(fd, buf, 128);
-      ParseSensors(buf, 128);
+      //int n = read(fd, buf, 128);
+      //ParseSensors(buf, 128);
       rightEnc.data = s.rightEnc;
       leftEnc.data = s.leftEnc;
       liftPot.data = s.liftPot;
@@ -323,10 +326,10 @@ int main(int argc, char *argv[])
 	char intStr[4];
 	sprintf(intStr, "%d", motors[i]);
 	strcat(sendBuf, intStr);
-	strcat(sendBuf, ',');
+	strcat(sendBuf, comma);
       }
-      strcat(sendBuf, '}');
-      
+      strcat(sendBuf, closeBrace);
+      printf("%s\n",sendBuf);
       usleep(10000);
     }
     return 0;
