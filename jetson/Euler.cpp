@@ -149,6 +149,20 @@ void ParseSensors(char * buf, int bufLen)
 
 }
 
+enum Motors_s
+{
+  leftBack,
+  leftFront,
+  leftTop,
+  rightBack,
+  rightFront,
+  rightTop,
+  liftLeftBottom,
+  liftRightBottom,
+  liftTop,
+  claw
+}
+int Motors[10]
 
 char tarCmd [] = {':', '`', '0', '\n'};
 char QuatCmd[] = {':', '0','0' ,'\n'};
@@ -239,7 +253,7 @@ int main(int argc, char *argv[])
     int fd;
     /* My Arduino is on /dev/ttyACM0 */
     char buf[256];
-
+    char sendBuf[128];
     /* Open the file descriptor in non-blocking mode */
     fd = open("/dev/ttyACM2", O_RDWR | O_NOCTTY);
     printf("Arduino, fd opened as %i\n", fd);
@@ -293,10 +307,6 @@ int main(int argc, char *argv[])
       /* read up to 128 bytes from the fd */
       int n = read(fd, buf, 128);
       ParseSensors(buf, 128);
-      //printf("RightEnc:%d\n", s.rightEnc);
-      //printf("LeftEnc:%d\n", s.leftEnc);
-      //printf("LiftPot:%d\n", s.liftPot);
-      //printf("ClawPot:%d\n", s.clawPot);      
       rightEnc.data = s.rightEnc;
       leftEnc.data = s.leftEnc;
       liftPot.data = s.liftPot;
@@ -305,6 +315,18 @@ int main(int argc, char *argv[])
       pubLeftEnc.publish(leftEnc);
       pubLift.publish(liftPot);
       pubClaw.publish(clawPot);
+
+      memcpy(sendBuf, '\0', 128);
+      sendBuf[0] = '{';
+      for(int i = 0; i < 10; i++)
+      {
+	char intStr[4];
+	sprintf(intStr, "%d", motors[i]);
+	strcat(sendBuf, intStr);
+	strcat(sendBuf, ',');
+      }
+      strcat(sendBuf, '}');
+      
       usleep(10000);
     }
     return 0;
