@@ -146,6 +146,22 @@ namespace robot
 //        motor[rightFront] = -127;
 //        motor[rightTop] = -127;
     }
+    void Robot::MoveForward(double targetDistance)
+    {
+//        static float startEncoder = Average((float)leftDriveEnc.currTick,(float)rightDriveEnc.currTick);
+//        if((localPose.theta > 0 && localPose.theta <180) && localPose.x < localPose.x + (targetDistance * cosh(localPose.theta)) && )
+//        motor[leftBack] = -127;
+//        motor[leftFront] = -127;
+//        motor[leftTop] = -127;
+//        motor[rightBack] = -127;
+//        motor[rightFront] = -127;
+//        motor[rightTop] = -127;
+    }
+    
+    void Robot::SendMotorPowers()
+    {
+        //send motor[]
+    }
     
     void Robot::UpdatePosition(Robot& rbt)
     {
@@ -173,7 +189,6 @@ namespace robot
     void Robot::Run(Robot& rbt)
     {
         FSM(rbt);
-        ros::NodeHandle nh;
         ROS_INFO_STREAM_ONCE("ITS RUNNING");
     }
     

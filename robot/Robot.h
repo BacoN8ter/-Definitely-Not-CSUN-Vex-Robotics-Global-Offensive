@@ -70,7 +70,8 @@ namespace robot
         void MoveClaw(double targetAngle);
         void MoveLift(double targetAngle);
         void MoveBack(double targetDistance);
-        
+        void MoveForward(double targetDistance);
+        void SendMotorPowers();
     private:
         
         
