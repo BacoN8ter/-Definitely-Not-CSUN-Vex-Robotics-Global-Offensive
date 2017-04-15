@@ -319,14 +319,15 @@ int main(int argc, char *argv[])
       pubLift.publish(liftPot);
       pubClaw.publish(clawPot);
 
-      memcpy(sendBuf, '\0', 128);
       sendBuf[0] = '{';
+      sendBuf[1] = '\0';
       for(int i = 0; i < 10; i++)
       {
 	char intStr[4];
 	sprintf(intStr, "%d", motors[i]);
 	strcat(sendBuf, intStr);
-	strcat(sendBuf, comma);
+	if(i != 9)
+	  strcat(sendBuf, comma);
       }
       strcat(sendBuf, closeBrace);
       printf("%s\n",sendBuf);

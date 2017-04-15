@@ -18,8 +18,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string>
-#include <ros/ros.h>
-#include <geometry_msgs/Quaternion>
+
 #define DEBUG 1
   
 struct Euler
@@ -148,11 +147,28 @@ void ParseSensors(char * buf, int bufLen)
 
 }
 
+enum Motors_s
+{
+  leftBack,
+  leftFront,
+  leftTop,
+  rightBack,
+  rightFront,
+  rightTop,
+  liftLeftBottom,
+  liftRightBottom,
+  liftTop,
+  claw
+};
+int motors[10] = {0,0,0,0,0,0,0,0,0,0};
 
 
 char tarCmd [] = {':', '`', '0', '\n'};
 char QuatCmd[] = {':', '0','0' ,'\n'};
 char EulerCmd[] = {':', '1','0' ,'\n'};
+char comma[] = {','};
+char closeBrace[] = {'}'};
+
 int main(int argc, char *argv[])
 {
     
@@ -222,9 +238,10 @@ int main(int argc, char *argv[])
     int fd;
     /* My Arduino is on /dev/ttyACM0 */
     char buf[256];
+    char sendBuf[128];   
 
     /* Open the file descriptor in non-blocking mode */
-    fd = open("/dev/ttyACM2", O_RDWR | O_NOCTTY);
+    fd = open("/dev/ttyACM0", O_RDWR | O_NOCTTY);
     printf("Arduino, fd opened as %i\n", fd);
     /* Set up the control structure */
     struct termios toptions;
@@ -271,16 +288,35 @@ int main(int argc, char *argv[])
     tcflush(fd, TCIFLUSH);
     while(true)
     {
-      memset(buf, '\0', 128);
+      
+      memset(buf, '\0', 256);
 
       /* read up to 128 bytes from the fd */
       int n = read(fd, buf, 128);
       ParseSensors(buf, 128);
-      //printf("RightEnc:%d\n", s.rightEnc);
+      printf("RightEnc:%d\n", s.rightEnc);
       //printf("LeftEnc:%d\n", s.leftEnc);
       //printf("LiftPot:%d\n", s.liftPot);
       //printf("ClawPot:%d\n", s.clawPot);      
       usleep(10000);
+
+      
+      //memcpy(sendBuf, '\0', 128);
+      sendBuf[0] = '{';
+      sendBuf[1] = '\0';
+      for(int i = 0; i < 10; i++)
+      {
+	printf("motor%d:%d \n",i, motors[i]);
+	char intStr[4];
+	sprintf(intStr, "%d", motors[i]);
+	strcat(sendBuf, intStr);
+	if(i != 9)
+	  strcat(sendBuf, comma);
+      }
+      strcat(sendBuf, closeBrace);
+      printf("sendBuf:%s\n",sendBuf);
+      usleep(10000);
+      
     }
     return 0;
     
