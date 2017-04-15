@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(jetson)
 
 find_package(catkin REQUIRED COMPONENTS roscpp
-            geometry_msgs)
+            geometry_msgs
+            std_msgs)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(-std=c++11)

@@ -18,7 +18,8 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string>
-
+#include <ros/ros.h>
+#include <geometry_msgs/Quaternion>
 #define DEBUG 1
   
 struct Euler
@@ -153,13 +154,11 @@ char QuatCmd[] = {':', '0','0' ,'\n'};
 char EulerCmd[] = {':', '1','0' ,'\n'};
 int main(int argc, char *argv[])
 {
-
+    
   pid_t pid = fork();
   printf("pid: %d", pid);
   if(pid > 0)
   {
-    
-
     int fd, n, i;
     const int bufSize = 128;
     
@@ -216,6 +215,7 @@ int main(int argc, char *argv[])
     }
     return 0;
   }
+  
   else if(pid == 0)
   {
     int fd;
