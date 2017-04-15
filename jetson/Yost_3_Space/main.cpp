@@ -160,14 +160,12 @@ enum Motors_s
   liftTop,
   claw
 };
-int motors[10] = {0,0,0,0,0,0,0,0,0,0};
+int motors[10] = {-100,-50,-20,-10,0,20,50,50,90,100};
 
 
 char tarCmd [] = {':', '`', '0', '\n'};
 char QuatCmd[] = {':', '0','0' ,'\n'};
 char EulerCmd[] = {':', '1','0' ,'\n'};
-char comma[] = {','};
-char closeBrace[] = {'}'};
 
 int main(int argc, char *argv[])
 {
@@ -183,7 +181,7 @@ int main(int argc, char *argv[])
     struct termios toptions;
     
     /* open serial port */
-    fd = open("/dev/ttyACM3", O_RDWR | O_NOCTTY);
+    fd = open("/dev/ttyACM1", O_RDWR | O_NOCTTY);
     printf("Yost, fd opened as %i\n", fd);
     
     /* wait for the Arduino to reboot */
@@ -241,7 +239,7 @@ int main(int argc, char *argv[])
     char sendBuf[128];   
 
     /* Open the file descriptor in non-blocking mode */
-    fd = open("/dev/ttyACM0", O_RDWR | O_NOCTTY);
+    fd = open("/dev/ttyACM2", O_RDWR | O_NOCTTY);
     printf("Arduino, fd opened as %i\n", fd);
     /* Set up the control structure */
     struct termios toptions;
@@ -286,36 +284,54 @@ int main(int argc, char *argv[])
     usleep(1000*1000);
     /* Flush anything already in the serial buffer */
     tcflush(fd, TCIFLUSH);
+
+    int a = 0;
     while(true)
     {
       
       memset(buf, '\0', 256);
-
+      memset(sendBuf, '\0', 128);
       /* read up to 128 bytes from the fd */
       int n = read(fd, buf, 128);
       ParseSensors(buf, 128);
-      printf("RightEnc:%d\n", s.rightEnc);
+      //printf("RightEnc:%d\n", s.rightEnc);
       //printf("LeftEnc:%d\n", s.leftEnc);
       //printf("LiftPot:%d\n", s.liftPot);
       //printf("ClawPot:%d\n", s.clawPot);      
-      usleep(10000);
 
+      if(a % 1 == 0)
+      {
+	for(int j = 0; j < 10; j++)
+        {
+	  if(motors[j] > 128) motors[j] = -128;
+	  motors[j] += j + 1;
+	}
+      }
+      a++;
       
       //memcpy(sendBuf, '\0', 128);
       sendBuf[0] = '{';
       sendBuf[1] = '\0';
       for(int i = 0; i < 10; i++)
       {
-	printf("motor%d:%d \n",i, motors[i]);
-	char intStr[4];
-	sprintf(intStr, "%d", motors[i]);
+	//printf("motor%d:%d \n",i, motors[i]);
+	char intStr[5];	
+	sprintf(intStr, "%d:%d%c",i, motors[i], '\0');
+	strcat(sendBuf, "(");	
 	strcat(sendBuf, intStr);
-	if(i != 9)
-	  strcat(sendBuf, comma);
+	strcat(sendBuf, ")");
+	
       }
-      strcat(sendBuf, closeBrace);
+      strcat(sendBuf, "}");
       printf("sendBuf:%s\n",sendBuf);
-      usleep(10000);
+      int i = 0;
+      while(sendBuf[i - 1] != '}')
+      {
+	write(fd, &sendBuf[i], 1);
+	i++;
+      }
+
+      usleep(20000);
       
     }
     return 0;

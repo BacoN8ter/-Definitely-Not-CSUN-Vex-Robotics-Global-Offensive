@@ -104,6 +104,7 @@ public:
 Potentiometer::Potentiometer(int port, int minValue, int maxValue)
 {
   this->port = port;
+  pinMode(port, INPUT);
   this->minValue = minValue;
   this->maxValue = maxValue;
 }
@@ -148,6 +149,8 @@ void setup()
 
 int rightPower = 128;
 int leftPower = 128;
+
+String recvMsg;
 
 void loop()
 {
@@ -205,23 +208,31 @@ void loop()
   Serial.write('\n');
   //Serial1.println(analogRead(A0));
   //Serial.println(clawPotentiometer.value);
-  delay(50);
-  
-  String recvMsg;
-  if(  Serial.available())
+  delay(1);
+
+  if(Serial.available())
   {
+
     while(Serial.available())
     {
-      recvMsg += (char)Serial.read();
+      recvMsg += (char)Serial.read();     
+      delayMicroseconds(10); 
     } 
     for(int i = 0; i < recvMsg.length(); i++)
     {
+      Serial.write((char)recvMsg[i]);
       Serial3.write((char)recvMsg[i]);
+      delayMicroseconds(8);
     }
+    recvMsg = "";
   }
 
-  delay(50);
+  delay(1);
 }
+
+
+
+
 
 
 
