@@ -49,15 +49,15 @@ void ParseEuler(char * buf, int bufLen)
 
       case 0:
 	e.roll = atof(number); 
-	printf("Roll:%f\n",e.roll);
+	//printf("Roll:%f\n",e.roll);
 	break;
       case 1:
 	e.pitch = atof(number); 
-	printf("Pitch:%f\n",e.pitch);
+	//printf("Pitch:%f\n",e.pitch);
 	break;
       case 2:
 	e.yaw = atof(number); 
-	printf("Yaw:%f\n",e.yaw);
+	//printf("Yaw:%f\n",e.yaw);
 	break;
       }
 
@@ -69,73 +69,220 @@ void ParseEuler(char * buf, int bufLen)
 
 }
 
-int main(int argc, char *argv[])
+struct Sensors
 {
-  int fd, n, i;
-  const int bufSize = 128;
+  int rightEnc;
+  int leftEnc;
+  int liftPot;
+  int clawPot;
+};
 
-  char tarCmd [] = {':', '0', '0', '\n'};
-  char QuatCmd[] = {':', '0','0' ,'\n'};
-  char EulerCmd[] = {':', '1','0' ,'\n'};
-  char buf[bufSize];
+Sensors s;
 
-  struct termios toptions;
+void ParseSensors(char * buf, int bufLen)
+{
+  int index = 0;
+  int count = 0;
+  char number[10];
+  bool messageExists = false;
+  int beginBrace = 0;
+  int endBrace   = 0;
 
-  /* open serial port */
-  fd = open("/dev/ttyACM0", O_RDWR | O_NOCTTY);
-  printf("fd opened as %i\n", fd);
-  
-  /* wait for the Arduino to reboot */
-  usleep(3500000);
-  
-  /* get current serial port settings */
-  tcgetattr(fd, &toptions);
-  /* set 9600 baud both ways */
-  cfsetispeed(&toptions, B115200);
-  cfsetospeed(&toptions, B115200);
-  /* 8 bits, no parity, no stop bits */
-  toptions.c_cflag &= ~PARENB;
-  toptions.c_cflag &= ~CSTOPB;
-  toptions.c_cflag &= ~CSIZE;
-  toptions.c_cflag |= CS8;
-  /* Canonical mode */
-  toptions.c_lflag |= ICANON;
-  /* commit the serial port settings */
-  tcsetattr(fd, TCSANOW, &toptions);
+  bool opened = false;
+  for(int i = bufLen - 1; i >= 0; i--)
+  {
+    if(opened && buf[i] == '{')
+    {
+      beginBrace = i + 1;
+      messageExists = true;
+      break;
+    }
+    if(buf[i] == '}')
+    {
+      endBrace = i;
+      opened = true;
+    }
+    
+  }
 
-  //Tare
-  write(fd, &tarCmd[0], 1);
-  write(fd, &tarCmd[1], 1);
-  //write(fd, &tarCmd[2], 1);  
-  write(fd, &tarCmd[3], 1);
 
-  printf("%s\n", tarCmd);
-
-  memset(buf, '\0', bufSize);
-  n = read(fd, buf, bufSize);
-
-  printf("Response: %s", buf);
- 
-  usleep(10000000);
-
-  while(true)
+  if(messageExists)
   {
 
-    //Get Quaternion
-    write(fd, &EulerCmd[0], 1);
-    write(fd, &EulerCmd[1], 1);
-    //write(fd, &EulerCmd[2], 1);  
-    write(fd, &EulerCmd[3], 1);
+    for(int i = beginBrace; i < endBrace; i++)
+    {
+
+      if(buf[i] != ',')
+      {
+	number[index] = buf[i];
+	index++;
+      }
+      if(buf[i] == ',' || i == endBrace - 1)
+      {	
+
+	switch(count)
+	{
+	  
+	case 0:
+	  s.rightEnc = atoi(number); 
+	  break;
+	case 1:
+	  s.leftEnc = atoi(number); 
+	  break;
+	case 2:
+	  s.liftPot = atoi(number); 
+	  break;
+	case 3:
+	  s.clawPot = atoi(number); 
+	  break;
+	}
+	
+	count++;
+	index = 0;
+	memset(number, '\0', 10);
+      }
+    }
+  }
+
+
+}
+
+
+char tarCmd [] = {':', '`', '0', '\n'};
+char QuatCmd[] = {':', '0','0' ,'\n'};
+char EulerCmd[] = {':', '1','0' ,'\n'};
+int main(int argc, char *argv[])
+{
+
+  pid_t pid = fork();
+  printf("pid: %d", pid);
+  if(pid > 0)
+  {
     
-    //Clear buffer and read incomming bytes
-    memset(buf, '\0', bufSize);
-    n = read(fd, buf, bufSize);
-    system("clear");
-    /* insert terminating zero in the string */
-    ParseEuler(buf, n);
-    buf[n] = 0;
+
+    int fd, n, i;
+    const int bufSize = 128;
+    
+    char buf[bufSize];
+    struct termios toptions;
+    
+    /* open serial port */
+    fd = open("/dev/ttyACM3", O_RDWR | O_NOCTTY);
+    printf("Yost, fd opened as %i\n", fd);
+    
+    /* wait for the Arduino to reboot */
+    usleep(3500000);
+    
+    /* get current serial port settings */
+    tcgetattr(fd, &toptions);
+    /* set 9600 baud both ways */
+    cfsetispeed(&toptions, B115200);
+    cfsetospeed(&toptions, B115200);
+    /* 8 bits, no parity, no stop bits */
+    toptions.c_cflag &= ~PARENB;
+    toptions.c_cflag &= ~CSTOPB;
+    toptions.c_cflag &= ~CSIZE;
+    toptions.c_cflag |= CS8;
+    /* Canonical mode */
+    toptions.c_lflag |= ICANON;
+    /* commit the serial port settings */
+    tcsetattr(fd, TCSANOW, &toptions);
+    
+    //Tare
+    write(fd, &tarCmd[0], 1);
+    write(fd, &tarCmd[1], 1);
+    //write(fd, &tarCmd[2], 1);  
+    write(fd, &tarCmd[3], 1);
     
     usleep(100000);
+    
+    while(true)
+    {      
+      //Get Quaternion
+      write(fd, &EulerCmd[0], 1);
+      write(fd, &EulerCmd[1], 1);
+      write(fd, &EulerCmd[2], 1);  
+      write(fd, &EulerCmd[3], 1);
+      
+      //Clear buffer and read incomming bytes
+      memset(buf, '\0', bufSize);
+      n = read(fd, buf, bufSize);
+      //system("clear");
+      //insert terminating zero in the string */
+      ParseEuler(buf, n);
+      buf[n] = 0;
+      
+      usleep(100000);
+    }
+    return 0;
   }
-  return 0;
+  else if(pid == 0)
+  {
+    int fd;
+    /* My Arduino is on /dev/ttyACM0 */
+    char buf[256];
+
+    /* Open the file descriptor in non-blocking mode */
+    fd = open("/dev/ttyACM2", O_RDWR | O_NOCTTY);
+    printf("Arduino, fd opened as %i\n", fd);
+    /* Set up the control structure */
+    struct termios toptions;
+    
+    /* Get currently set options for the tty */
+    tcgetattr(fd, &toptions);
+    
+    /* Set custom options */
+    
+    /* 9600 baud */
+    cfsetispeed(&toptions, B19200);
+    cfsetospeed(&toptions, B19200);
+    /* 8 bits, no parity, no stop bits */
+    toptions.c_cflag &= ~PARENB;
+    toptions.c_cflag &= ~CSTOPB;
+    toptions.c_cflag &= ~CSIZE;
+    toptions.c_cflag |= CS8;
+    /* no hardware flow control */
+    toptions.c_cflag &= ~CRTSCTS;
+    /* enable receiver, ignore status lines */
+    toptions.c_cflag |= CREAD | CLOCAL;
+    /* disable input/output flow control, disable restart chars */
+    toptions.c_iflag &= ~(IXON | IXOFF | IXANY);
+    /* disable canonical input, disable echo,
+       disable visually erase chars,
+       disable terminal-generated signals */
+    toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    /* disable output processing */
+    toptions.c_oflag &= ~OPOST;
+    
+    /* wait for 12 characters to come in before read returns */
+    /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
+    /* CHARACTERS HAVE COME IN! */
+    toptions.c_cc[VMIN] = 12;
+    /* no minimum time to wait before read returns */
+    toptions.c_cc[VTIME] = 0;
+    
+    /* commit the options */
+    tcsetattr(fd, TCSANOW, &toptions);
+    
+    /* Wait for the Arduino to reset */
+    usleep(1000*1000);
+    /* Flush anything already in the serial buffer */
+    tcflush(fd, TCIFLUSH);
+    while(true)
+    {
+      memset(buf, '\0', 128);
+
+      /* read up to 128 bytes from the fd */
+      int n = read(fd, buf, 128);
+      ParseSensors(buf, 128);
+      //printf("RightEnc:%d\n", s.rightEnc);
+      //printf("LeftEnc:%d\n", s.leftEnc);
+      //printf("LiftPot:%d\n", s.liftPot);
+      //printf("ClawPot:%d\n", s.clawPot);      
+      usleep(10000);
+    }
+    return 0;
+    
+  }
+
 }
