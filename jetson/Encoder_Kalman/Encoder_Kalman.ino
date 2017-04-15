@@ -140,7 +140,7 @@ void setup()
    motors[8] = new Motor("right1",    9);
    motors[9] = new Motor("rightClaw", 10);
    */
-
+  Serial3.begin(19200);
 
 
 }
@@ -205,10 +205,24 @@ void loop()
   Serial.write('\n');
   //Serial1.println(analogRead(A0));
   //Serial.println(clawPotentiometer.value);
+  delay(50);
+  
+  String recvMsg;
+  if(  Serial.available())
+  {
+    while(Serial.available())
+    {
+      recvMsg += (char)Serial.read();
+    } 
+    for(int i = 0; i < recvMsg.length(); i++)
+    {
+      Serial3.write((char)recvMsg[i]);
+    }
+  }
 
-
-  delay(10);
+  delay(50);
 }
+
 
 
 
