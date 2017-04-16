@@ -5,16 +5,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 task UARTReceive();
-void Parse();
+task Parse();
 int nRcvIndex = 0;
 int rcvChar;
-const int messageSize = 256;
+const int messageSize = 128;
 //const int maxMessageLength = 11;
 char rcvChars[messageSize]; // Keep buffer of last 23 characters received.
+char parseChars[messageSize];
 int motorPowers[10];
-char powerChars[4];
+char powerChars[5];
 char portChars[3];
-
 
 // // Setup the UART ports
 // configureSerialPort(uartTwo, uartUserControl);
@@ -34,26 +34,10 @@ task UARTReceive()
 		// Loop forever getting characters from the "receive" UART. Validate that they arrive in the expected
 		// sequence.
 
-		rcvChar = getChar(uartOne);
+		rcvChar = getChar(uartTwo);
 		if (rcvChar == -1)
 		{
-			// No character available
-			sendChar(uartOne, ':');
-			while (!bXmitComplete(uartOne))
-		 	{
- 				wait1Msec(1);
- 			}
-			sendChar(uartOne, '0');
-			while (!bXmitComplete(uartOne))
-		 	{
- 				wait1Msec(1);
- 			}
-			sendChar(uartOne, '\n');
-			while (!bXmitComplete(uartOne))
-		 	{
- 				wait1Msec(1);
- 			}
-
+			wait1Msec(1);
 			continue;
 		}
 		else
@@ -62,7 +46,8 @@ task UARTReceive()
 			++nRcvIndex;
 			if(rcvChar == '}')
 			{
-				Parse();
+				memcpy(parseChars, rcvChars, messageSize);
+				startTask(Parse);
 			}
 
 			if (nRcvIndex >= sizeof(rcvChars))
@@ -70,7 +55,6 @@ task UARTReceive()
 				nRcvIndex = 0;
 			}
 		}
-		wait1Msec(1);
 	}
 }
 
@@ -81,19 +65,20 @@ struct bufferData{
 };
 
 
-void Parse()
+task Parse()
 {
 
 	bufferData data;
 	for(int i = 0; i < messageSize; i++)
 	{
-		if(rcvChars[i] == '{')
+		if(parseChars[i] == '{')
 		{
 			data.startIndex = i;
 		}
-		if(rcvChars[i] == '}')
+		if(parseChars[i] == '}')
 		{
 			data.endIndex = i;
+			break;
 		}
 	}
 
@@ -107,20 +92,19 @@ void Parse()
 	//{(motorPort:power) ( ... ) ...     }
 		for(int i = data.startIndex; i < data.endIndex; i++)
 		{
-	  	if(rcvChars[i] == '(')
+	  	if(parseChars[i] == '(')
 	  	{
-	  		for(int i = 0; i < 4; i++)
+	  		for(int i = 0; i < 5; i++)
 				{
 					if(i < 3) portChars[i] = '\0';
-
 					powerChars[i] = '\0';
 				}
 	  		i++;
 
 	  		int index = 0;
-	  		while(i < messageSize && rcvChars[i] != ':')
+	  		while(i < messageSize && parseChars[i] != ':' && index < 3)
 	  		{
-	  			char tempChar = rcvChars[i];
+	  			char tempChar = parseChars[i];
 	  			portChars[index] = tempChar;
 	  			index++;
 	  			i++;
@@ -131,16 +115,22 @@ void Parse()
 	  		i++;
 	  		index = 0;
 
-	  		while(i < messageSize && rcvChars[i] != ')')
+	  		while(i < messageSize && (parseChars[i] == 0x2D || (parseChars[i] >= 0x30 && parseChars[i] <= 0x39)) && index < 5)
 	  		{
-	  			powerChars[index] = rcvChars[i];
+	  			powerChars[index] = parseChars[i];
 	  			index++;
 	  			i++;
 	  		}
-				if(i >= messageSize) break;
-	  		int powerNumber = atoi(powerChars);
-				motorPowers[portNumber - 1] = powerNumber;
-				nRcvIndex = 0;
+	  		if(portNumber >= 0 && portNumber < 10)
+	  		{
+					if(i >= messageSize) break;
+
+	  			int powerNumber = atoi(powerChars);
+					motorPowers[portNumber] = powerNumber;
+					nRcvIndex = 0;
+
+					motor[portNumber] = motorPowers[portNumber];
+				}
 	  	}
 		}
 	}
@@ -149,8 +139,9 @@ void Parse()
 
 void configureSerial()
 {
-	configureSerialPort(uartOne, uartUserControl);
-	setBaudRate(uartOne,baudRate115200);
+	//configureSerialPort(uartTwo, uartUserControl);
+	//setBaudRate(uartTwo, baudRate19200);
+	//clear buffer
 
 	startTask(UARTReceive);
 }
