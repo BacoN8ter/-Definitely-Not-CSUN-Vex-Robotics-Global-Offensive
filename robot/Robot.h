@@ -36,6 +36,8 @@ namespace robot
                         sub_gyro,
                         sub_liftPot,
                         sub_clawPot;
+        
+        ros::Publisher pub_motors;
        
         geometry_msgs::Pose2D localPose,
                               prevPose;
@@ -60,7 +62,7 @@ namespace robot
         
         States state = Start;
         
-        int motor[6];//list of motors. 0->5 for the left and right side motors
+        int motor[10];//list of motors. 0->5 for the left and right side motors
         
         void Initialize();
         void Stop();

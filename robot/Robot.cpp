@@ -15,6 +15,7 @@
 #include "RobotMath.h"
 #include "Locomotion.cpp"
 #include "math.h"
+#include <std_msgs/Int32MultiArray.h>
 #define KpT 0.9
 #define KpD 4.5
 #define TimeStep 100.0
@@ -39,8 +40,9 @@ namespace robot
         sub_rightDriveEncTick = nh.subscribe("Robot/RightEnc",1000,&Robot::rightDriveEncCallback,this);
         sub_clawPot = nh.subscribe("Robot/ClawPot",1000,&Robot::clawCallback,this);
         sub_liftPot = nh.subscribe("Robot/LiftPot",1000,&Robot::liftCallback,this);
-                
         sub_wayPoint = nh.subscribe("waypoint",1000,&Robot::wayPointCallback,this);
+        
+        pub_motors = nh.advertise<std_msgs::Int32MultiArray>("Robot/Motors",1000);
         
         leftDriveEnc.gearRatio= 4/3;
         rightDriveEnc.gearRatio= 4/3;   
@@ -164,7 +166,12 @@ namespace robot
     
     void Robot::SendMotorPowers()
     {
-        //send motor[]
+        std_msgs::Int32MultiArray pubMotors;
+        for(int i =0; i < 10;i++)
+        {
+            pubMotors.data[i] = motor[i];
+        }
+        pub_motors.publish(pubMotors);
     }
     
     void Robot::UpdatePosition(Robot& rbt)
