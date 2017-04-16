@@ -18,6 +18,9 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string>
+#include <ros/ros.h>
+#include <geometry_msgs/Quaternion.h>
+#include <std_msgs/Int32.h>
 
 #define DEBUG 1
   

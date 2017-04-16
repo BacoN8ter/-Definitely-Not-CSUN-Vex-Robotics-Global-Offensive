@@ -13,8 +13,8 @@ catkin_package()
 include_directories(include ${catkin_INCLUDE_DIRS}
 ${CMAKE_CURRENT_BINARY_DIR})
                     
-add_executable(Euler Euler.cpp)
+add_executable(Sensors Sensors.cpp)
 
-add_dependencies(Euler ${catkin_EXPORTED_TARGETS})
+add_dependencies(Sensors ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(Euler ${catkin_LIBRARIES})
+target_link_libraries(Sensors ${catkin_LIBRARIES})
