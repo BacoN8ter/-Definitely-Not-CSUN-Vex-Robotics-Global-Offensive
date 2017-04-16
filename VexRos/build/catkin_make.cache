@@ -1,0 +1,2 @@
+jetson:robot
+-DCATKIN_DEVEL_PREFIX=/home/ubuntu/Documents/VexRos/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/Documents/VexRos/install -G Unix Makefiles
