@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/Documents/VexRos/devel
+
+Name: jetson
+Description: Description of jetson
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/ubuntu/Documents/VexRos/devel/lib 
+Requires: 
