@@ -46,6 +46,7 @@ ROS Services
 -Publish object locations to roscore
 
 #Cognition Service
--
+-Take the published data from position service and add logic for when power is applied
+-Send powers to cortex
 
 

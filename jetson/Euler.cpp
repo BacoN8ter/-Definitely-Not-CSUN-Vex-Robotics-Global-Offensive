@@ -18,7 +18,9 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string>
-
+#include <ros/ros.h>
+#include <std_msgs/Int32.h>
+#include <geometry_msgs/Quaternion.h>
 #define DEBUG 1
   
 struct Euler
@@ -160,18 +162,33 @@ enum Motors_s
   liftTop,
   claw
 };
-int motors[10] = {-100,-50,-20,-10,0,20,50,50,90,100};
-
+int motors[10];
 
 char tarCmd [] = {':', '`', '0', '\n'};
 char QuatCmd[] = {':', '0','0' ,'\n'};
 char EulerCmd[] = {':', '1','0' ,'\n'};
+char comma[] = {','};
+char closeBrace[] = {'}'};
 
 int main(int argc, char *argv[])
 {
+    ros::init(argc, argv, "Sensors_ros");
+    ros::NodeHandle nh;
+    
+    ros::Publisher pubEuler = nh.advertise<geometry_msgs::Quaternion>("Robot/RPY",1000);
+    ros::Publisher pubRightEnc = nh.advertise<std_msgs::Int32>("Robot/RightEnc",1000);
+    ros::Publisher pubLeftEnc = nh.advertise<std_msgs::Int32>("Robot/LeftEnc",1000);
+    ros::Publisher pubLift = nh.advertise<std_msgs::Int32>("Robot/LiftPot",1000);
+    ros::Publisher pubClaw = nh.advertise<std_msgs::Int32>("Robot/ClawPot",1000);
+    
+    geometry_msgs::Quaternion gyro;
+    std_msgs::Int32 rightEnc;
+    std_msgs::Int32 leftEnc;
+    std_msgs::Int32 liftPot;
+    std_msgs::Int32 clawPot;
     
   pid_t pid = fork();
-  printf("pid: %d", pid);
+  printf("pid: %d\n", pid);
   if(pid > 0)
   {
     int fd, n, i;
@@ -181,7 +198,7 @@ int main(int argc, char *argv[])
     struct termios toptions;
     
     /* open serial port */
-    fd = open("/dev/ttyACM1", O_RDWR | O_NOCTTY);
+    fd = open("/dev/ttyACM3", O_RDWR | O_NOCTTY);
     printf("Yost, fd opened as %i\n", fd);
     
     /* wait for the Arduino to reboot */
@@ -225,7 +242,10 @@ int main(int argc, char *argv[])
       //insert terminating zero in the string */
       ParseEuler(buf, n);
       buf[n] = 0;
-      
+      gyro.w = e.pitch;
+      gyro.x = e.roll;
+      gyro.y = e.yaw;
+      pubEuler.publish(gyro);
       usleep(100000);
     }
     return 0;
@@ -236,8 +256,7 @@ int main(int argc, char *argv[])
     int fd;
     /* My Arduino is on /dev/ttyACM0 */
     char buf[256];
-    char sendBuf[128];   
-
+    char sendBuf[128];
     /* Open the file descriptor in non-blocking mode */
     fd = open("/dev/ttyACM2", O_RDWR | O_NOCTTY);
     printf("Arduino, fd opened as %i\n", fd);
@@ -284,55 +303,35 @@ int main(int argc, char *argv[])
     usleep(1000*1000);
     /* Flush anything already in the serial buffer */
     tcflush(fd, TCIFLUSH);
-
-    int a = 0;
     while(true)
     {
-      
-      memset(buf, '\0', 256);
-      memset(sendBuf, '\0', 128);
-      /* read up to 128 bytes from the fd */
-      int n = read(fd, buf, 128);
-      ParseSensors(buf, 128);
-      //printf("RightEnc:%d\n", s.rightEnc);
-      //printf("LeftEnc:%d\n", s.leftEnc);
-      //printf("LiftPot:%d\n", s.liftPot);
-      //printf("ClawPot:%d\n", s.clawPot);      
+      memset(buf, '\0', 128);
 
-      if(a % 1 == 0)
-      {
-	for(int j = 0; j < 10; j++)
-        {
-	  if(motors[j] > 128) motors[j] = -128;
-	  motors[j] += j + 1;
-	}
-      }
-      a++;
-      
-      //memcpy(sendBuf, '\0', 128);
+      /* read up to 128 bytes from the fd */
+      //int n = read(fd, buf, 128);
+      //ParseSensors(buf, 128);
+      rightEnc.data = s.rightEnc;
+      leftEnc.data = s.leftEnc;
+      liftPot.data = s.liftPot;
+      clawPot.data = s.clawPot;
+      pubRightEnc.publish(rightEnc);
+      pubLeftEnc.publish(leftEnc);
+      pubLift.publish(liftPot);
+      pubClaw.publish(clawPot);
+
       sendBuf[0] = '{';
       sendBuf[1] = '\0';
       for(int i = 0; i < 10; i++)
       {
-	//printf("motor%d:%d \n",i, motors[i]);
-	char intStr[5];	
-	sprintf(intStr, "%d:%d%c",i, motors[i], '\0');
-	strcat(sendBuf, "(");	
+	char intStr[4];
+	sprintf(intStr, "%d", motors[i]);
 	strcat(sendBuf, intStr);
-	strcat(sendBuf, ")");
-	
+	if(i != 9)
+	  strcat(sendBuf, comma);
       }
-      strcat(sendBuf, "}");
-      printf("sendBuf:%s\n",sendBuf);
-      int i = 0;
-      while(sendBuf[i - 1] != '}')
-      {
-	write(fd, &sendBuf[i], 1);
-	i++;
-      }
-
-      usleep(20000);
-      
+      strcat(sendBuf, closeBrace);
+      printf("%s\n",sendBuf);
+      usleep(10000);
     }
     return 0;
     
