@@ -20,6 +20,7 @@
 #include <string>
 #include <ros/ros.h>
 #include <geometry_msgs/Quaternion.h>
+#include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Int32.h>
 
 #define DEBUG 1
@@ -150,6 +151,8 @@ void ParseSensors(char * buf, int bufLen)
 
 }
 
+
+
 enum Motors_s
 {
   leftBack,
@@ -163,12 +166,20 @@ enum Motors_s
   liftTop,
   claw
 };
-int motors[10] = {-100,-50,-20,-10,0,20,50,50,90,100};
+int *motors;
 
 
 char tarCmd [] = {':', '`', '0', '\n'};
 char QuatCmd[] = {':', '0','0' ,'\n'};
 char EulerCmd[] = {':', '1','0' ,'\n'};
+
+void motorCallback(const std_msgs::Int32MultiArray& motorPowers)
+{
+    for(int i =0;i<10;i++)
+    {
+        motors[i] = motorPowers.data[i];
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -180,7 +191,9 @@ int main(int argc, char *argv[])
     ros::Publisher pubLeftEnc = nh.advertise<std_msgs::Int32>("Robot/LeftEnc",1000);
     ros::Publisher pubLift = nh.advertise<std_msgs::Int32>("Robot/LiftPot",1000);
     ros::Publisher pubClaw = nh.advertise<std_msgs::Int32>("Robot/ClawPot",1000);
-
+    
+    ros::Subscriber subMotor = nh.subscribe("Robot/Motors",1000,&motorCallback);
+    
     geometry_msgs::Quaternion gyro;
     std_msgs::Int32 rightEnc;
     std_msgs::Int32 leftEnc;
@@ -322,15 +335,7 @@ int main(int argc, char *argv[])
         pubLeftEnc.publish(leftEnc);
         pubLift.publish(liftPot);
         pubClaw.publish(clawPot);
-        if(a % 1 == 0)
-        {
-          for(int j = 0; j < 10; j++)
-          {
-            if(motors[j] > 128) motors[j] = -128;
-            motors[j] += j + 1;
-          }
-        }
-        a++;
+
 
         //memcpy(sendBuf, '\0', 128);
         sendBuf[0] = '{';
@@ -352,10 +357,10 @@ int main(int argc, char *argv[])
         {
           write(fd, &sendBuf[i], 1);
           i++;
-        }
-
+        } 
+        ros::spin();
         usleep(20000);
-
+       
       }
       return 0;
 
