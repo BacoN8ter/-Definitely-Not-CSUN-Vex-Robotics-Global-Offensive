@@ -1,5 +1,5 @@
-#pragma config(Sensor, in1,    C_POT,          sensorPotentiometer)
-#pragma config(Sensor, in8,    L_POT,          sensorPotentiometer)
+#pragma config(UART_Usage, UART1, uartUserControl, baudRate19200, IOPins, None, None)
+#pragma config(UART_Usage, UART2, uartUserControl, baudRate19200, IOPins, None, None)
 #pragma config(Motor,  port1,           claw1,         tmotorVex393_HBridge, openLoop, reversed)
 #pragma config(Motor,  port2,           ld1,           tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3,           ld2,           tmotorVex393_MC29, openLoop, reversed)
@@ -26,6 +26,7 @@
 
 //Main competition background code...do not modify!
 #include "Vex_Competition_Includes.c"
+#include "UART.h"
 
 //Include Johnny Functions
 #include <worldsBotManual.h>
@@ -62,7 +63,7 @@ void pre_auton()
 	// Example: clearing encoders, setting servo positions, ...
 	//startTask(SensorReader);
 	//startTask(chooseAuton);
-
+	configureSerial();
 }
 
 task autonomous(){
@@ -86,6 +87,14 @@ task autonomous(){
 		//smartLeftAuton1();
 		skillRun();
 	}*/
+
+	while(true)
+	{
+		for(int i = 0; i < 10; i++)
+		{
+			motor[i] = motorPowers[i];
+		}
+	}
 }
 
 task usercontrol(){
