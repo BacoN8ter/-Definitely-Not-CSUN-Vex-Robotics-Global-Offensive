@@ -57,13 +57,18 @@ namespace robot
         /*at obj position and see it -> GrabObj*/
         
         ROS_INFO_STREAM("GOTO");
+	
         if(ComparePosition(rbt->localPose.x,rbt->wayPoint.at(0).x) && ComparePosition(rbt->localPose.y,rbt->wayPoint.at(0).y))
         {
-            return GrabObj;
+            //return GrabObj;
+		rbt->Stop();
+		ROS_INFO_STREAM("EVERYTHING SHOULD BE STOPPED");
         }
         else
         {
             rbt->Move();
+	    rbt->MoveLift(850);
+	    rbt->MoveClaw(60);
             return GoToObj;
         }
     }

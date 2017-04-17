@@ -106,41 +106,41 @@ namespace robot
             motor[leftBack] = power;// + angleOffset;
         }
     }
-    void Robot::MoveClaw(double targetAngle)
+    void Robot::MoveClaw(double targetPot)
     {
-//        if(clawAngle < targetAngle)
-//        {
-//           motor[claw] = 127;
-//        }
-//        else if(clawAngle > targetAngle)
-//        {
-//            motor[claw] = -127;
-//        }
-//        else
-//        {
-//            motor[claw] = 0;
-//        }
+        if(clawPot < targetPot)
+        {
+           motor[claw] = 127;
+	   motor[claw2] = 127;
+        }
+         if(clawPot > targetPot)
+        {
+            motor[claw] = -127;
+	    motor[claw2] = -127;
+        }
+        else
+        {
+            motor[claw] = 0;
+	    motor[claw2] = 0;
+        }
     }
-    void Robot::MoveLift(double targetAngle)
+    void Robot::MoveLift(double targetPot)
     {
-//         if(liftAngle < targetAngle) // too low
-//        {
-//            motor[liftLeftBottom] = 127;
-//            motor[liftRightBottom] = 127;
-//            motor[liftTop] = 127;
-//        }
-//         else if(liftAngle > targetAngle) //too high
-//        {
-//             motor[liftLeftBottom] = -127;
-//            motor[liftRightBottom] = -127;
-//            motor[liftTop] = -127;
-//        }
-//        else // perf
-//        {
-//            motor[liftLeftBottom] = 0;
-//            motor[liftRightBottom] = 0;
-//            motor[liftTop] = 0;
-//        }
+         if(liftPot < targetPot) // too low
+        {
+            motor[liftBottom] = 127;
+            motor[liftTop] = 127;
+        }
+          if(liftPot > targetPot) //too high
+        {
+           motor[liftBottom] = -127;
+            motor[liftTop] = -127;
+        }
+        else // perf
+        {
+            motor[liftBottom] = 0;
+            motor[liftTop] = 0;
+        }
     }
     
     void Robot::MoveBack(double targetDistance)
@@ -198,6 +198,10 @@ namespace robot
         motor[rightBack] = 0;
         motor[rightFront] = 0;
         motor[rightTop] = 0;
+ motor[liftBottom] = 0;
+            motor[liftTop] = 0;
+motor[claw] = 0;
+	    motor[claw2] = 0;
     }
     
     void Robot::Run()
@@ -214,7 +218,6 @@ namespace robot
     void Robot::rightDriveEncCallback(const std_msgs::Int32& robotEncoderTick)
     {
        rightDriveEnc.currTick = robotEncoderTick.data;
-       ROS_INFO_STREAM("I AM GETTING A VALUE");
     } 
     void Robot::clawCallback(const std_msgs::Int32& clawValue)
     {

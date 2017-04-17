@@ -57,7 +57,7 @@ namespace robot
         float xSpeed,
               ySpeed;//speed of the robot
         
-        float wheelCircumference = 20.0;  // wheel circumfrence for vex omni. unit determines measurement of system. i.e circ -> inches means x,y -> inches
+        float wheelCircumference = 12.56;  // wheel circumfrence for vex omni. unit determines measurement of system. i.e circ -> inches means x,y -> inches
         
         SubStates subState = IdleClaw; //state of sub sunctions such as arm movement
         Phase phase = Instruction; 

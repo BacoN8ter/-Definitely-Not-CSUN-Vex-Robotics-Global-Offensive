@@ -72,8 +72,8 @@ namespace robot
         void Move();
         void UpdatePosition();
         void Run();
-        void MoveClaw(double targetAngle);
-        void MoveLift(double targetAngle);
+        void MoveClaw(double targetPot);
+        void MoveLift(double targetPot);
         void MoveBack(double targetDistance);
         void MoveForward(double targetDistance);
         void SendMotorPowers();
