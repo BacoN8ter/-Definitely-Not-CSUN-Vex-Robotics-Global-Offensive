@@ -21,6 +21,21 @@ char portChars[3];
 // setBaudRate(uartTwo, baudRate115200);
 // startTask(UARTReceive);
 
+typedef ScoringObject
+{
+	int color, //0 yellow | 1 orange
+	int x,     //Pixel X
+	int y      //Pixel Y
+};
+
+typedef Sensor
+{
+	float Yaw //degrees
+};
+
+Sensor jetsonSensor;
+ScoringObject scoringObjects[10];
+
 task UARTReceive()
 {
 	//sendChar(uartTwo, '*');
@@ -69,11 +84,20 @@ task Parse()
 {
 
 	bufferData data;
+
+	int messageType = 0; //0 - gyro
+											 //1 - Object Detected
+
 	for(int i = 0; i < messageSize; i++)
 	{
 		if(parseChars[i] == '{')
 		{
 			data.startIndex = i;
+			if(parseChars[i+1] == '0')
+			{
+				messageType = 0;
+			}
+			//else if(messageChars
 		}
 		if(parseChars[i] == '}')
 		{
