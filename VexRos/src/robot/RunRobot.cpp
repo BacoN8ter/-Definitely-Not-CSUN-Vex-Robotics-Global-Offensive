@@ -40,7 +40,9 @@ int main(int argc, char** argv) {
             assem1.UpdatePosition();
             ros::spinOnce(); //where the callback is actually called
             ROS_INFO_STREAM(assem1.gyro);   
-	    ROS_INFO_STREAM(assem1.rightDriveEnc.currTick);         
+	ROS_INFO_STREAM(assem1.liftPot);
+	    ROS_INFO_STREAM(assem1.clawPot);     
+	//ROS_INFO_STREAM(assem1.leftDriveEnc);    
 	    ROS_INFO_STREAM(assem1.motor[leftTop]);
     }
 }
