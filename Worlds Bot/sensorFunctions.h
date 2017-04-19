@@ -52,28 +52,28 @@ void moveDown(int power, int dist){
 void rotateToAngle(int angle){
 
 	//Get Current Angle
-    int currentAngle = jetsonSensor.yaw;
-	
-	//determine if the robot needs to turn left or right depending	
+    int currentAngle = jetsonSensors.yaw;
+
+	//determine if the robot needs to turn left or right depending
 	// on its current angle and the angle passed in
 
-	
+
 	if (currentAngle < angle){
-		
-		while(jetsonSensor.yaw < angle){
-			
-			
+
+		while(jetsonSensors.yaw < angle){
+
+
 		}
 	}
 	else if(currentAngle > angle){
-		
-		while(jetsonSensor.yaw > angle){
-			
-			
+
+		while(jetsonSensors.yaw > angle){
+
+
 		}
-		
+
 	}
-	
+
 	PowerToAllDriveMotors(0);
 
 }

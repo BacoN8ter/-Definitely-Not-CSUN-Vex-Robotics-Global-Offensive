@@ -78,7 +78,7 @@ task autonomous(){
 	//startTask(chooseAuton);
 
 	//Determine which autonomous to run
-
+/*
 	if(AUTON_CHOICE == 0){
 		LeftSquareAuton1();
 	}
@@ -90,7 +90,7 @@ task autonomous(){
 		RightSquareAuton2();
 	else{
 		LeftSquareAuton1();
-	}
+	}*/
 }
 
 task usercontrol(){
