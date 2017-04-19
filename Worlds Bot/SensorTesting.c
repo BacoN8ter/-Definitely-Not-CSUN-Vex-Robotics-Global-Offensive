@@ -16,6 +16,8 @@
 #include <worldsBotManual.h>
 #include <sensorFunctions.h>
 #include <autoRoutines.h>
+#include <UART.h>
+
 void Open_Close_Claw(int power,int wide){
 
 	//Close Claw
@@ -84,7 +86,6 @@ void LiftTest(){
 	motor[lift1] = 0;
 	motor[lift2] = 0;
 }
-
 
 
 task main()

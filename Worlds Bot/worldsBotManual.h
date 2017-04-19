@@ -12,6 +12,8 @@
 #define OPEN_CLAW_LIMIT 3300
 #define CLOSE_CLAW_LIMIT 0
 
+int lift_pot,claw_pot,left_enc,right_enc;
+
 task drive(){
 	while(true){
 
@@ -74,5 +76,11 @@ task claw(){
 
 task SensorReader(){
 
-	//right_enc = SensorValue[R_ENC];
+  SensorValue[L_ENC] = 0;
+	while(true){
+	lift_pot = SensorValue[L_POT];
+	claw_pot = SensorValue[C_POT];
+	left_enc = SensorValue[L_ENC];
+	right_enc = SensorValue[R_ENC];
+  }
 }

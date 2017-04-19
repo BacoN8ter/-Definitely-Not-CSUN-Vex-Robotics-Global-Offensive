@@ -1,4 +1,12 @@
 
+#include <UART.h>
+
+void moveUp(int power, int dist);
+void moveDown(int power,int dist);
+void rotateLeft(int power, int dist);
+void rotateRight(int power, int dist);
+void Raise_Tower(int power,int height);
+
 void turnOffClaw();
 //=========================================================================
 // Drive Functions
@@ -41,6 +49,34 @@ void moveDown(int power, int dist){
 
 }
 
+void rotateToAngle(int angle){
+
+	//Get Current Angle
+    int currentAngle = jetsonSensor.yaw;
+	
+	//determine if the robot needs to turn left or right depending	
+	// on its current angle and the angle passed in
+
+	
+	if (currentAngle < angle){
+		
+		while(jetsonSensor.yaw < angle){
+			
+			
+		}
+	}
+	else if(currentAngle > angle){
+		
+		while(jetsonSensor.yaw > angle){
+			
+			
+		}
+		
+	}
+	
+	PowerToAllDriveMotors(0);
+
+}
 void rotateLeft(int power,int dist){
 
 

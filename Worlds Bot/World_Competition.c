@@ -1,5 +1,7 @@
-#pragma config(UART_Usage, UART1, uartUserControl, baudRate19200, IOPins, None, None)
-#pragma config(UART_Usage, UART2, uartUserControl, baudRate19200, IOPins, None, None)
+#pragma config(Sensor, in1,    C_POT,          sensorPotentiometer)
+#pragma config(Sensor, in7,    L_POT,          sensorPotentiometer)
+#pragma config(Sensor, dgtl5,  R_ENC,          sensorQuadEncoder)
+#pragma config(Sensor, dgtl11, L_ENC,          sensorQuadEncoder)
 #pragma config(Motor,  port1,           claw1,         tmotorVex393_HBridge, openLoop, reversed)
 #pragma config(Motor,  port2,           ld1,           tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3,           ld2,           tmotorVex393_MC29, openLoop, reversed)
@@ -26,10 +28,14 @@
 
 //Main competition background code...do not modify!
 #include "Vex_Competition_Includes.c"
-#include "UART.h"
 
-//Include Johnny Functions
+//Include Mick Hero 6 Functions
 #include <worldsBotManual.h>
+#include <autoRoutines.h>
+#include <sensorFunctions.h>
+#include <UART.h>
+
+#define AUTON_CHOICE 0
 //Auton Choice
 // 0 - Left Square: 3 stars fence, cube, 3 far zone stars search and score
 // 1 - Left Square: Cube, 3 center stars fence, search and score
@@ -64,6 +70,7 @@ void pre_auton()
 	//startTask(SensorReader);
 	//startTask(chooseAuton);
 	configureSerial();
+
 }
 
 task autonomous(){
@@ -71,29 +78,18 @@ task autonomous(){
 	//startTask(chooseAuton);
 
 	//Determine which autonomous to run
-/*
-	if(AUTON_CHOICE == 0){
-		//smartLeftAuton1();
-		skillRun();
 
+	if(AUTON_CHOICE == 0){
+		LeftSquareAuton1();
 	}
 	else if(AUTON_CHOICE == 1)
-		smartLeftAuton2();
+		LeftSquareAuton2();
 	else if(AUTON_CHOICE == 2)
-		smartRightAuton1();\
+		RightSquareAuton1();
 	else if(AUTON_CHOICE == 3)
-		smartRightAuton2();
+		RightSquareAuton2();
 	else{
-		//smartLeftAuton1();
-		skillRun();
-	}*/
-
-	while(true)
-	{
-		for(int i = 0; i < 10; i++)
-		{
-			motor[i] = motorPowers[i];
-		}
+		LeftSquareAuton1();
 	}
 }
 
@@ -103,6 +99,4 @@ task usercontrol(){
 	startTask(drive);
 	startTask(lift);
 	startTask(claw);
-
-
 }
