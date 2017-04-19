@@ -14,6 +14,8 @@ char rcvChars[messageSize]; // Keep buffer of last 23 characters received.
 char parseChars[messageSize];
 int motorPowers[10];
 char floatChars[12];
+bool firstPass = false;
+int initialHeading = 0;
 
 // // Setup the UART ports
 // configureSerialPort(uartTwo, uartUserControl);
@@ -36,7 +38,7 @@ task UARTReceive()
 	//{
 	//	wait1Msec(50);
 	//}
-
+	while(getChar(uartTwo) != -1){}
 	while (true)
 	{
 		// Loop forever getting characters from the "receive" UART. Validate that they arrive in the expected
@@ -117,6 +119,7 @@ task Parse()
 			// 2 yaw
 
 			//{0 (roll,pitch, yaw)     }
+
 			for(int i = data.startIndex; i < data.endIndex; i++)
 			{
 
@@ -124,22 +127,24 @@ task Parse()
 				{
 					memset(floatChars, '\0', 12);
 					i++;
-					while(parseChars[i] != ')')
+					int j = 0;
+					while(parseChars[i] != ')' && j < 12)
 					{
-						floatChars[i] = parseChars[i];
+						floatChars[j] = parseChars[i];
+						j++;
 						i++;
 					}
 
 					switch(count)
 					{
 					case 0:
-						jetsonSensors.roll  = atof(floatChars);
+						jetsonSensors.yaw  = atof(floatChars);
 						break;
 					case 1:
 						jetsonSensors.pitch = atof(floatChars);
 						break;
 					case 2:
-						jetsonSensors.yaw   = atof(floatChars);
+						jetsonSensors.roll   = atof(floatChars);
 						break;
 					}
 					count++;
@@ -148,7 +153,11 @@ task Parse()
 			}
 		}
 	}
-
+	if(!firstPass)
+	{
+		firstPass = true;
+		initialHeading = jetsonSensors.pitch;
+	}
 }
 
 void configureSerial()

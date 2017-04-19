@@ -1,5 +1,6 @@
+#pragma config(UART_Usage, UART2, uartUserControl, baudRate19200, IOPins, None, None)
 #pragma config(Sensor, in1,    C_POT,          sensorPotentiometer)
-#pragma config(Sensor, in7,    L_POT,          sensorPotentiometer)
+#pragma config(Sensor, in2,    L_POT,          sensorPotentiometer)
 #pragma config(Sensor, dgtl5,  R_ENC,          sensorQuadEncoder)
 #pragma config(Sensor, dgtl11, L_ENC,          sensorQuadEncoder)
 #pragma config(Motor,  port1,           claw1,         tmotorVex393_HBridge, openLoop, reversed)
@@ -34,6 +35,8 @@
 #include <autoRoutines.h>
 #include <sensorFunctions.h>
 #include <UART.h>
+#include <Robot.h>
+#include <AutonFunctions.h>
 
 #define AUTON_CHOICE 0
 //Auton Choice
@@ -70,7 +73,7 @@ void pre_auton()
 	//startTask(SensorReader);
 	//startTask(chooseAuton);
 	configureSerial();
-
+  startTask(UpdatePosition);
 }
 
 task autonomous(){
@@ -78,25 +81,35 @@ task autonomous(){
 	//startTask(chooseAuton);
 
 	//Determine which autonomous to run
-/*
+	/*
 	if(AUTON_CHOICE == 0){
-		LeftSquareAuton1();
+	LeftSquareAuton1();
 	}
 	else if(AUTON_CHOICE == 1)
-		LeftSquareAuton2();
+	LeftSquareAuton2();
 	else if(AUTON_CHOICE == 2)
-		RightSquareAuton1();
+	RightSquareAuton1();
 	else if(AUTON_CHOICE == 3)
-		RightSquareAuton2();
+	RightSquareAuton2();
 	else{
-		LeftSquareAuton1();
+	LeftSquareAuton1();
 	}*/
-}
+
+//	Turn(90);
+
+	}
 
 task usercontrol(){
 
 	//Enable lift and driver control
-	startTask(drive);
-	startTask(lift);
-	startTask(claw);
+//	startTask(SensorReader);
+//	startTask(drive);
+	//startTask(lift);
+	//startTask(claw);
+
+	while(true){
+		drive();
+		lift();
+		claw();
+  }
 }
