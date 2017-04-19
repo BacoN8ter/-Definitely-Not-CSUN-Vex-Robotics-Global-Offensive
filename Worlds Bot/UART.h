@@ -13,28 +13,21 @@ const int messageSize = 128;
 char rcvChars[messageSize]; // Keep buffer of last 23 characters received.
 char parseChars[messageSize];
 int motorPowers[10];
-char powerChars[5];
-char portChars[3];
+char floatChars[12];
 
 // // Setup the UART ports
 // configureSerialPort(uartTwo, uartUserControl);
 // setBaudRate(uartTwo, baudRate115200);
 // startTask(UARTReceive);
 
-typedef ScoringObject
+typedef struct Sensor
 {
-	int color, //0 yellow | 1 orange
-	int x,     //Pixel X
-	int y      //Pixel Y
-};
+	float roll;
+	float pitch;
+	float yaw; //degrees
+}Sensor;
 
-typedef Sensor
-{
-	float Yaw //degrees
-};
-
-Sensor jetsonSensor;
-ScoringObject scoringObjects[10];
+Sensor jetsonSensors;
 
 task UARTReceive()
 {
@@ -77,6 +70,8 @@ struct bufferData{
 	bool contained;
 	int startIndex;
 	int endIndex;
+	int messageType;//0 - gyro
+	//1 - Object Detected
 };
 
 
@@ -85,8 +80,6 @@ task Parse()
 
 	bufferData data;
 
-	int messageType = 0; //0 - gyro
-											 //1 - Object Detected
 
 	for(int i = 0; i < messageSize; i++)
 	{
@@ -95,9 +88,12 @@ task Parse()
 			data.startIndex = i;
 			if(parseChars[i+1] == '0')
 			{
-				messageType = 0;
+				data.messageType = 0;
 			}
-			//else if(messageChars
+			else if(parseChars[i+1] == '1')
+			{
+				data.messageType = 1;
+			}
 		}
 		if(parseChars[i] == '}')
 		{
@@ -113,48 +109,43 @@ task Parse()
 
 	if(data.contained)
 	{
-	//{(motorPort:power) ( ... ) ...     }
-		for(int i = data.startIndex; i < data.endIndex; i++)
+		if(data.messageType == 0)
 		{
-	  	if(parseChars[i] == '(')
-	  	{
-	  		for(int i = 0; i < 5; i++)
+			int count = 0;
+			// 0 roll
+			// 1 pitch
+			// 2 yaw
+
+			//{0 (roll,pitch, yaw)     }
+			for(int i = data.startIndex; i < data.endIndex; i++)
+			{
+
+				if(parseChars[i] == '(')
 				{
-					if(i < 3) portChars[i] = '\0';
-					powerChars[i] = '\0';
-				}
-	  		i++;
+					memset(floatChars, '\0', 12);
+					i++;
+					while(parseChars[i] != ')')
+					{
+						floatChars[i] = parseChars[i];
+						i++;
+					}
 
-	  		int index = 0;
-	  		while(i < messageSize && parseChars[i] != ':' && index < 3)
-	  		{
-	  			char tempChar = parseChars[i];
-	  			portChars[index] = tempChar;
-	  			index++;
-	  			i++;
-	  		}
-
-	  		int portNumber = atoi(portChars);
-
-	  		i++;
-	  		index = 0;
-
-	  		while(i < messageSize && (parseChars[i] == 0x2D || (parseChars[i] >= 0x30 && parseChars[i] <= 0x39)) && index < 5)
-	  		{
-	  			powerChars[index] = parseChars[i];
-	  			index++;
-	  			i++;
-	  		}
-	  		if(portNumber >= 0 && portNumber < 10)
-	  		{
-					if(i >= messageSize) break;
-
-	  			int powerNumber = atoi(powerChars);
-					motorPowers[portNumber] = powerNumber;
-					nRcvIndex = 0;
+					switch(count)
+					{
+					case 0:
+						jetsonSensors.roll  = atof(floatChars);
+						break;
+					case 1:
+						jetsonSensors.pitch = atof(floatChars);
+						break;
+					case 2:
+						jetsonSensors.yaw   = atof(floatChars);
+						break;
+					}
+					count++;
 
 				}
-	  	}
+			}
 		}
 	}
 
