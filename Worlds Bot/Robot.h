@@ -24,6 +24,7 @@ typedef struct
 	float XSpeed;
 	float YSpeed;
 	int Heading;
+	int offset;
 }Robot;
 
 /*
@@ -57,8 +58,9 @@ task UpdatePosition()
 
 		float distance = CalculateDistance(leftDriveEnc, rightDriveEnc);
 
-		Bot.Heading = (jetsonSensors.pitch % 360) - initialHeading; //this keeps the robot direction constrained to the range 0-360 degrees
-	//actually yaw although
+		Bot.Heading = (jetsonSensors.yaw  - initialHeading) % 360; //this keeps the robot direction constrained to the range 0-360 degrees
+	  Bot.Offset = jetsonSensors.yaw;
+		//actually yaw although
 		//calculate the distance the robot has traveled along its path (the hypotenuse)
 		Bot.XSpeed = cosDegrees(Bot.Heading) * distance;
 		Bot.YSpeed = sinDegrees(Bot.Heading) * distance;
@@ -66,7 +68,9 @@ task UpdatePosition()
 		Bot.X += Bot.XSpeed;
 		Bot.Y += Bot.YSpeed;
 		//wait a litte bit to prevent the CPU from getting overworked
-		while(time1[T1] < TimeStep){}
+		while(time1[T1] < TimeStep){
+			Bot.Heading = (jetsonSensors.yaw  - initialHeading) % 360; //this keeps the robot direction constrained to the range 0-360 degrees
+	  }
 		time1[T1] = 0;
 	}
 }
@@ -87,8 +91,9 @@ float CalculateDistance(Encoder EncoderL,Encoder EncoderR)
 	EncoderL.prevTick = EncoderL.currTick;
 	EncoderR.prevTick = EncoderR.currTick;
 
-	EncoderL.currTick = Average(sensorValue[L_ENC], sensorValue[L_ENC]);
+	EncoderL.currTick = -Average(sensorValue[L_ENC], sensorValue[L_ENC]);
 	EncoderR.currTick = Average(sensorValue[R_ENC], sensorValue[R_ENC]);
+
 	// 20cm wheel circumfrence
 	return EncoderR.gearRatio * wheelCircumference * Average(EncoderL.currTick - EncoderL.prevTick, EncoderR.currTick - EncoderR.prevTick) / 360.0;
 }
@@ -98,6 +103,9 @@ void Initialize(Robot bot, Encoder encoderL, Encoder encoderR)
 	bot.X = 0;
 	bot.Y = 0;
 	bot.Heading = 0;
+	SensorValue[R_ENC] = 0;
+	SensorValue[L_ENC] = 0;
+	clearAll(actOnSensors);
 	encoderL.currTick = 0;
 	encoderR.currTick = 0;
 	encoderL.prevTick = 0;

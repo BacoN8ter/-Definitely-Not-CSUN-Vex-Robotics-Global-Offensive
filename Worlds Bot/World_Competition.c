@@ -1,4 +1,4 @@
-#pragma config(UART_Usage, UART2, uartUserControl, baudRate19200, IOPins, None, None)
+#pragma config(UART_Usage, UART2, uartUserControl, baudRate115200, IOPins, None, None)
 #pragma config(Sensor, in1,    C_POT,          sensorPotentiometer)
 #pragma config(Sensor, in2,    L_POT,          sensorPotentiometer)
 #pragma config(Sensor, dgtl5,  R_ENC,          sensorQuadEncoder)

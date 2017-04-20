@@ -61,7 +61,7 @@ void lift(){
 			motor[lift1] = maxpower;
 			motor[lift2] = maxpower;
 		}
-		else if(vexRT[Btn6U] == 1){
+		else if(vexRT[Btn6U] == 1 && SensorValue[L_POT] < HIGHLIFTLIMIT){
 			motor[lift1] = -maxpower;
 			motor[lift2] = -maxpower;
 		}

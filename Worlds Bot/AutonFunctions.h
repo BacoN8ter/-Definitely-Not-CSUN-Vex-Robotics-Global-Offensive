@@ -1,6 +1,7 @@
 //Auton Functions
-
-#define KpT 0.9
+#include <Robot.h>
+#include <autoRoutines.h>
+#define KpT 0.4
 #define KpD 4.5
 //calculates the angle needed to turn in order to face the target point
 int AngleBetween(int x1, int y1, int x2, int y2)
@@ -22,9 +23,12 @@ void Turn(int targetAngle)
 	{
 		difference += 360;
 	}
+	int sgnDif = sgn(difference);
 //p control
-	while(abs(difference) > 1)
+	while(abs(difference) > 2)
 	{
+		//if(sgnDif != sgn(difference)) break;
+
 		difference = (targetAngle - Bot.Heading);
 		while(difference > 180)
 		{
@@ -36,19 +40,23 @@ void Turn(int targetAngle)
 		}
 
 		int power = difference * KpT;
-		power = power < -100 ? -100 : power;
-		power = power > 100 ? 100 : power;
-		motor[ld1] = power;
-		motor[ld2] = power;
-		motor[ld3] = power;
-		motor[rd1] = -power;
-		motor[rd2] = -power;
-		motor[rd3] = -power;
+		power = power < -120 ? -120 : power;
+		power = power > 120 ? 120 : power;
 
-		while(time1[T2] < 10){}
+		power = abs(power) < 40 ? sgn(power) * 40 : power;
+
+		motor[ld1] = -power;
+		motor[ld2] = -power;
+		motor[ld3] = -power;
+		motor[rd1] = power;
+		motor[rd2] = power;
+		motor[rd3] = power;
+
+		while(time1[T2] < 0){}
 		time1[T2] = 0;
 	}
-
+	sgnDif = sgn(difference);
+    PowerToAllDriveMotors(0);
 }
 //everything put together in order to travel to target point from current point
 void Move(float X, float Y){
@@ -63,7 +71,7 @@ void Move(float X, float Y){
 		difference -= sqrt(pow(Bot.XSpeed, 2) + pow(Bot.YSpeed, 2));
 
 		int power = difference * KpD;
-		power = power < 10 ? 10 : power;
+		power = abs(power) < 30 ? sgn(power) * 30 : power;
 		//float angleOffset = (AngleBetween(Bot.X, Bot.Y, X, Y) - Bot.Heading);
 		power = power >= 100 ? 100 : power;
 

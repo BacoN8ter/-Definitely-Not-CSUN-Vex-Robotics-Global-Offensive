@@ -1,5 +1,6 @@
 
 #include <UART.h>
+#include <worldsBotManual.h>
 
 void moveUp(int power, int dist);
 void moveDown(int power,int dist);
@@ -51,25 +52,35 @@ void moveDown(int power, int dist){
 
 void rotateToAngle(int angle){
 
-	//Get Current Angle
-    int currentAngle = jetsonSensors.yaw;
+
 
 	//determine if the robot needs to turn left or right depending
 	// on its current angle and the angle passed in
-
-
-	if (currentAngle < angle){
+  //Turn Left
+	if (jetsonSensors.yaw < angle){
 
 		while(jetsonSensors.yaw < angle){
+				motor[ld1] = -50;
+				motor[ld2] = -50;
+				motor[ld3] = -50;
 
+				motor[rd1] = 50;
+				motor[rd2] = 50;
+				motor[rd3] = 50;
 
 		}
 	}
-	else if(currentAngle > angle){
+	else if(jetsonSensors.yaw > angle){
 
 		while(jetsonSensors.yaw > angle){
 
+				motor[ld1] = 50;
+				motor[ld2] = 50;
+				motor[ld3] = 50;
 
+				motor[rd1] = -50;
+				motor[rd2] = -50;
+				motor[rd3] = -50;
 		}
 
 	}

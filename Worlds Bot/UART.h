@@ -8,7 +8,7 @@ task UARTReceive();
 task Parse();
 int nRcvIndex = 0;
 int rcvChar;
-const int messageSize = 128;
+const int messageSize = 32;
 //const int maxMessageLength = 11;
 char rcvChars[messageSize]; // Keep buffer of last 23 characters received.
 char parseChars[messageSize];
@@ -47,7 +47,7 @@ task UARTReceive()
 		rcvChar = getChar(uartTwo);
 		if (rcvChar == -1)
 		{
-			wait1Msec(1);
+			//wait1Msec(1);
 			continue;
 		}
 		else
@@ -88,14 +88,6 @@ task Parse()
 		if(parseChars[i] == '{')
 		{
 			data.startIndex = i;
-			if(parseChars[i+1] == '0')
-			{
-				data.messageType = 0;
-			}
-			else if(parseChars[i+1] == '1')
-			{
-				data.messageType = 1;
-			}
 		}
 		if(parseChars[i] == '}')
 		{
@@ -111,8 +103,7 @@ task Parse()
 
 	if(data.contained)
 	{
-		if(data.messageType == 0)
-		{
+
 			int count = 0;
 			// 0 roll
 			// 1 pitch
@@ -135,28 +126,19 @@ task Parse()
 						i++;
 					}
 
-					switch(count)
-					{
-					case 0:
-						jetsonSensors.yaw  = atof(floatChars);
-						break;
-					case 1:
-						jetsonSensors.pitch = atof(floatChars);
-						break;
-					case 2:
-						jetsonSensors.roll   = atof(floatChars);
-						break;
-					}
-					count++;
+					jetsonSensors.yaw  = atof(floatChars);
+
+					//BREAKING SINCE ONLY YAW IS SENT
+					break;
 
 				}
 			}
-		}
+
 	}
 	if(!firstPass)
 	{
 		firstPass = true;
-		initialHeading = jetsonSensors.pitch;
+		initialHeading = jetsonSensors.yaw;
 	}
 }
 
