@@ -52,8 +52,6 @@ void moveDown(int power, int dist){
 
 void rotateToAngle(int angle){
 
-
-
 	//determine if the robot needs to turn left or right depending
 	// on its current angle and the angle passed in
   //Turn Left
@@ -280,4 +278,39 @@ void turnOffClaw(){
 
 	motor[claw1] = 0;
 	motor[claw2] = 0;
+}
+
+//=========================================================================
+// Object detection Functions
+//=========================================================================
+
+void followObject(/*GameObject*/)
+{
+	GameObject trackedObject;
+	int error;
+	int power;
+	int screenCenterX;
+	int kP;
+	int basePower = 60;
+	while(/*not at star position*/)
+	{
+		error = screenCenterX - trackedObject.pixelX;
+		power = error * kP;
+		//max/min of 120 power
+		motor[ld1] = basePower+power;
+		motor[ld2] = basePower+power;
+		motor[ld3] = basePower+power;
+
+		motor[rd1] = basePower-power;
+		motor[rd2] = basePower-power;
+		motor[rd3] = basePower-power;
+	}
+		motor[ld1] = 0;
+		motor[ld2] = 0;
+		motor[ld3] = 0;
+
+		motor[rd1] = 0;
+		motor[rd2] = 0;
+		motor[rd3] = 0;
+
 }
