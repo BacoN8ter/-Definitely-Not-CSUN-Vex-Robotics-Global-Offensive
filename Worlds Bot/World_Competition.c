@@ -38,7 +38,7 @@
 #include <Robot.h>
 #include <AutonFunctions.h>
 
-#define AUTON_CHOICE 4
+#define AUTON_CHOICE 3
 //----------------------------------------------------------------------------
 // Auton Descriptions
 //----------------------------------------------------------------------------

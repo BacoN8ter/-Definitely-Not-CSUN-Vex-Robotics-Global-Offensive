@@ -102,6 +102,9 @@ void RightSquareAuton1(){
 }
 
 void RightSquareAuton2(){
+	//-----------------------------------------------------
+	// Part 1 - attempt to score the cube
+	//-----------------------------------------------------
 	moveUp(maxpower,650);
 	startTask(initialOpenClaw);
 
@@ -109,7 +112,7 @@ void RightSquareAuton2(){
 
 	moveUp(maxpower,400);
 	//Close_Claw(maxpower,CLOSE_CLAW_LIMIT);
-	Close_Claw(2000);
+	keepClawClosed(2000);
 
 	Raise_Tower(maxpower,HIGHLIFTLIMIT);
 
@@ -122,6 +125,9 @@ void RightSquareAuton2(){
 	Open_Claw(1000);
 	//cube scored
 
+	//-----------------------------------------------------
+	// Part 2 - attempt to score the three back stars
+	//-----------------------------------------------------
 	//Open_Claw(maxpower,WIDE_CLAW_OPEN);
 	moveDown(maxpower,300);
 
@@ -137,6 +143,21 @@ void RightSquareAuton2(){
 
 	Open_Claw(600);
 
+	//-----------------------------------------------------
+	// Part 3 - attempt to score the three back stars again
+	//-----------------------------------------------------
+
+	moveDown(maxpower,300);
+	rotateRight(40,840);
+	Lower_Tower(maxpower,LOWLIFTLIMIT);
+	moveUp(maxpower, 200);
+	Close_Claw(2000);
+
+	Raise_Tower(maxpower, HIGHLIFTLIMIT);
+	rotateRight(60, 800);
+	moveUP(maxpower,1100);
+
+	Open_Claw(600);
 }
 
 void LeftSquareAuton2(){
@@ -176,9 +197,9 @@ void LeftSquareAuton2(){
 
 void RightSquareWallRoutine(){
 
-//----------------------------------------------------------------
-// Part 1 - Score 4 farzone stars
-//----------------------------------------------------------------
+	//----------------------------------------------------------------
+	// Part 1 - Score 4 farzone stars
+	//----------------------------------------------------------------
 	//Lift tower,close claw, lower tower
 	startTask(initialLift);
 	//Raise_Tower(maxpower,FENCE_HEIGHT);
@@ -196,8 +217,8 @@ void RightSquareWallRoutine(){
 	moveDown(maxpower,200);
 	Raise_Tower(maxpower,HIGHLIFTLIMIT);
 
-	Turn(/*A degrees towards the fence*/);
-
+	//Turn(/*A degrees towards the fence*/);
+	rotateRight(40,300);
 	moveDown(1000);
 
 	startTask(keepLiftUp);
@@ -208,10 +229,10 @@ void RightSquareWallRoutine(){
 
 	stopTask(keepLiftUp);
 	turnOffClaw();
-	
-//----------------------------------------------------------------
-// Part 2 - Score Center Cube
-//----------------------------------------------------------------
+
+	//----------------------------------------------------------------
+	// Part 2 - Score Center Cube
+	//----------------------------------------------------------------
 	moveDown(maxpower,1800);
 
 	Turn(/*A degrees towards the starting position*/);
@@ -243,10 +264,10 @@ void RightSquareWallRoutine(){
 	moveUp(maxpower,1700);
 
 	Open_Claw(900);
-	
-//----------------------------------------------------------------
-// Part 3 - Search the field and Score Objects
-//----------------------------------------------------------------
+
+	//----------------------------------------------------------------
+	// Part 3 - Search the field and Score Objects
+	//----------------------------------------------------------------
 
 	moveDown(maxpower,900);
 

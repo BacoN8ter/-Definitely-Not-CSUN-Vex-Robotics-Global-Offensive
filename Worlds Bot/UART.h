@@ -150,3 +150,10 @@ void configureSerial()
 
 	startTask(UARTReceive);
 }
+
+typedef struct
+{
+	int pixelX;
+	int pixelY;
+	int type; //0 for cube. 1 for star
+}GameObject;
