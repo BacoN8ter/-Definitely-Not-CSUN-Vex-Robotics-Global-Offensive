@@ -38,7 +38,7 @@
 #include <Robot.h>
 #include <AutonFunctions.h>
 
-#define AUTON_CHOICE 0
+#define AUTON_CHOICE 3
 //Auton Choice
 // 0 - Left Square: 3 stars fence, cube, 3 far zone stars search and score
 // 1 - Left Square: Cube, 3 center stars fence, search and score
@@ -81,29 +81,29 @@ task autonomous(){
 	//startTask(chooseAuton);
 
 	//Determine which autonomous to run
-	/*
+
 	if(AUTON_CHOICE == 0){
 	LeftSquareAuton1();
 	}
 	else if(AUTON_CHOICE == 1)
 	LeftSquareAuton2();
 	else if(AUTON_CHOICE == 2)
-	RightSquareAuton1();
+	RightSquareAuton1(); //*
 	else if(AUTON_CHOICE == 3)
-	RightSquareAuton2();
+	RightSquareAuton2(); //*
 	else{
-	LeftSquareAuton1();
-	}*/
+	//LeftSquareAuton1();
+	}
 
-//	Turn(90);
+//	Turn(90);'
 
 	}
 
 task usercontrol(){
 
 	//Enable lift and driver control
-//	startTask(SensorReader);
-//	startTask(drive);
+  //startTask(SensorReader);
+  //startTask(drive);
 	//startTask(lift);
 	//startTask(claw);
 

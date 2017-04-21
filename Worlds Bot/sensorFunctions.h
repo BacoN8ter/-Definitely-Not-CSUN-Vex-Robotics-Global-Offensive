@@ -230,6 +230,19 @@ void Close_Claw(int power,int wide){
 
 }
 
+void Close_Claw(int time)
+{
+	int power = maxpower;
+	motor[claw1] = power;
+	motor[claw2] = power;
+
+	wait1Msec(time);
+
+	motor[claw1] = 40;
+	motor[claw2] = 40;
+
+}
+
 void Open_Claw(int power, int wide){
 
 	time1[T1] = 0;
@@ -246,6 +259,20 @@ void Open_Claw(int power, int wide){
   turnOffClaw();
 	wait10Msec(20);
 
+
+}
+
+
+void Open_Claw(int time)
+{
+	int power = maxpower;
+	motor[claw1] = -power;
+	motor[claw2] = -power;
+
+	wait1Msec(time);
+
+	motor[claw1] = 0;
+	motor[claw2] = 0;
 
 }
 
