@@ -1,7 +1,7 @@
 
 #include <UART.h>
 #include <worldsBotManual.h>
-
+#include <AutonFunctions.h>
 void moveUp(int power, int dist);
 void moveDown(int power,int dist);
 void rotateLeft(int power, int dist);
@@ -129,6 +129,34 @@ void rotateRight(int power,int dist){
 		PowerToAllDriveMotors(0);
 
 		wait10Msec(50);
+
+}
+
+void getToDaFence()//Arnold voice
+{
+	Turn(0); //face fence
+	time1[T4] = 0;//timeout
+	while((SensorValue[leftTouch] == 0 || SensorValue[rightTouch] == 0) && time1[T4]<5000)
+	{
+		if(SensorValue[leftTouch] == 1)
+		{
+				motor[ld1] = 0;
+				motor[ld2] = 0;
+				motor[ld3] = 0;
+				motor[rd1] = 100;
+				motor[rd2] = 100;
+				motor[rd3] = 100;
+		}
+		else if(SensorValue[rightTouch] == 1)
+		{
+				motor[ld1] = 100;
+				motor[ld2] = 100;
+				motor[ld3] = 100;
+				motor[rd1] = 0;
+				motor[rd2] = 0;
+				motor[rd3] = 0;
+		}
+	}
 
 }
 
