@@ -1,52 +1,6 @@
 #include <sensorFunctions.h>
 #include <worldsBotManual.h>
-/*
 
-task chooseAuton(){
-
-
-	while(true){
-
-		if(autoBit0 == 1)
-			AUTON_CHOICE = 0;
-
-		else if(autoBit1 == 1)
-			AUTON_CHOICE = 1;
-
-		else if(autoBit2 == 1)
-			AUTON_CHOICE = 2;
-
-		else if(autoBit3 == 1)
-			AUTON_CHOICE = 3;
-
-	}
-}
-*/
-
-task initialLift(){
-
-
-	Raise_Tower(70,FENCE_HEIGHT);
-
-}
-
-task initialOpenClaw(){
-
-	motor[claw1] = maxpower;
-	motor[claw2] = maxpower;
-  wait1Msec(900);
-  motor[claw1] = 0;
-	motor[claw2] = 0;
-
-	//Close_Claw(70,WIDE_CLAW_OPEN);
-}
-
-task keepClawClosed(){
-
-		while(SensorValue[C_POT] > CLOSE_CLAW){
-
-	  }
-}
 
 void LeftSquareAuton1(){
 
@@ -85,25 +39,7 @@ void LeftSquareAuton1(){
 
 	moveUp(maxpower,900);
 	Open_Claw(maxpower,WIDE_CLAW_OPEN);
-/*
-	moveDown(maxpower,200);
-	rotateLeft(40,840);
 
-	Lower_Tower(maxpower,LOWLIFTLIMIT);
-	moveUp(maxpower,100);
-
-	Close_Claw(maxpower,CLOSE_CLAW);
-	moveDown(maxpower,100);
-
-  Raise_Tower(maxpower,HIGHLIFTLIMIT);
-  rotateRight(40,840);
-
-  moveUp(maxpower,900);
-  Open_Claw(maxpower,WIDE_CLAW_OPEN);
-
-  moveDown(maxpower,900);
-
-  */
 
 }
 
@@ -144,7 +80,7 @@ void RightSquareAuton1(){
 
 	moveUp(maxpower,900);
 	Open_Claw(maxpower,WIDE_CLAW_OPEN);
-/*
+	/*
 	moveDown(maxpower,200);
 	rotateLeft(40,840);
 
@@ -153,15 +89,15 @@ void RightSquareAuton1(){
 	Close_Claw(maxpower,CLOSE_CLAW);
 	moveDown(maxpower,100);
 
-  Raise_Tower(maxpower,HIGHLIFTLIMIT);
-  rotateRight(40,840);
+	Raise_Tower(maxpower,HIGHLIFTLIMIT);
+	rotateRight(40,840);
 
-  moveUp(maxpower,900);
-  Open_Claw(maxpower,WIDE_CLAW_OPEN);
+	moveUp(maxpower,900);
+	Open_Claw(maxpower,WIDE_CLAW_OPEN);
 
-  moveDown(maxpower,900);
+	moveDown(maxpower,900);
 
-  */
+	*/
 
 }
 
@@ -183,23 +119,23 @@ void RightSquareAuton2(){
 	moveUp(maxpower,900);
 
 	//Open_Claw(maxpower,WIDE_CLAW_OPEN);
-  Open_Claw(1000);
-  //cube scored
+	Open_Claw(1000);
+	//cube scored
 
-  //Open_Claw(maxpower,WIDE_CLAW_OPEN);
+	//Open_Claw(maxpower,WIDE_CLAW_OPEN);
 	moveDown(maxpower,300);
 
 
-  rotateRight(40,840);
+	rotateRight(40,840);
 	Lower_Tower(maxpower,LOWLIFTLIMIT);
 	moveUp(maxpower, 200);
 	Close_Claw(2000);
 
-  Raise_Tower(maxpower, HIGHLIFTLIMIT);
-  rotateRight(60, 800);
-  moveUP(maxpower,1100);
+	Raise_Tower(maxpower, HIGHLIFTLIMIT);
+	rotateRight(60, 800);
+	moveUP(maxpower,1100);
 
-  Open_Claw(600);
+	Open_Claw(600);
 
 }
 
@@ -219,20 +155,107 @@ void LeftSquareAuton2(){
 	moveUp(maxpower,900);
 
 	Open_Claw(maxpower,WIDE_CLAW_OPEN);
-  moveDown(maxpower,200);
+	moveDown(maxpower,200);
 
-  rotateLeft(40,840);
-  moveUp(maxpower,100);
+	rotateLeft(40,840);
+	moveUp(maxpower,100);
 
-  Close_Claw(maxpower,CLOSE_CLAW);
-  moveDown(maxpower,100);
+	Close_Claw(maxpower,CLOSE_CLAW);
+	moveDown(maxpower,100);
 
-  Raise_Tower(maxpower,HIGHLIFTLIMIT);
-  rotateRight(40,840);
+	Raise_Tower(maxpower,HIGHLIFTLIMIT);
+	rotateRight(40,840);
 
-  moveUP(maxpower,900);
-  Open_Claw(maxpower,WIDE_CLAW_OPEN);
+	moveUP(maxpower,900);
+	Open_Claw(maxpower,WIDE_CLAW_OPEN);
 
-  moveDown(maxpower,200);
+	moveDown(maxpower,200);
+
+}
+
+
+void RightSquareWallRoutine(){
+
+//----------------------------------------------------------------
+// Part 1 - Score 4 farzone stars
+//----------------------------------------------------------------
+	//Lift tower,close claw, lower tower
+	startTask(initialLift);
+	//Raise_Tower(maxpower,FENCE_HEIGHT);
+	moveDown(maxpower,100);
+	Close_Claw(1500);
+
+	wait10Msec(50);
+
+	//Lower Tower
+	Lower_Tower(maxpower,LOWLIFTLIMIT);
+	Open_Claw(50);
+
+	moveUp(maxpower,2400);
+
+	moveDown(maxpower,200);
+	Raise_Tower(maxpower,HIGHLIFTLIMIT);
+
+	Turn(/*A degrees towards the fence*/);
+
+	moveDown(1000);
+
+	startTask(keepLiftUp);
+
+	moveUp(maxpower,1800);
+
+	Open_Claw(900);
+
+	stopTask(keepLiftUp);
+	turnOffClaw();
+	
+//----------------------------------------------------------------
+// Part 2 - Score Center Cube
+//----------------------------------------------------------------
+	moveDown(maxpower,1800);
+
+	Turn(/*A degrees towards the starting position*/);
+
+	moveUp(maxpower,1000);
+
+	Turn(/*A degrees towards the cube*/);
+
+	Lower_Tower(maxpower,LOWLIFTLIMIT);
+
+	moveUp(maxpower,100);
+
+	keepClawClosed(900);
+
+	Raise_Tower(maxpower,HIGHLIFTLIMIT);
+
+	int cube_check = cubeCheck();
+
+	if(cube_Check == 1){
+
+		Turn(/*90 degrees to the Left*/);
+
+		moveUp(maxpower,300);
+
+		Turn(/*To the fence*/);
+
+	}
+
+	moveUp(maxpower,1700);
+
+	Open_Claw(900);
+	
+//----------------------------------------------------------------
+// Part 3 - Search the field and Score Objects
+//----------------------------------------------------------------
+
+	moveDown(maxpower,900);
+
+	Turn(/*Turn with bot facing east*/);
+
+	moveDown(1500);
+
+	Lower_Tower(maxpower,LOWLIFTLIMIT);
+
+	//Start Searching:
 
 }

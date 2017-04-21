@@ -3,7 +3,7 @@
 #define maxpower 127
 
 #define HIGHLIFTLIMIT 3750
-#define LOWLIFTLIMIT 1900
+#define LOWLIFTLIMIT 2000
 #define FENCE_HEIGHT 2900
 
 #define WIDE_CLAW_OPEN 1850
